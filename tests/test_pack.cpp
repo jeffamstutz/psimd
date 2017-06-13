@@ -153,3 +153,23 @@ TEST_CASE("all()")
   foreach(m, [](int &l) { l = 1; });
   REQUIRE(psimd::all(m));
 }
+
+TEST_CASE("select()")
+{
+  psimd::mask<4> m(0);
+  m[0] = 1;
+  m[2] = 1;
+
+  psimd::pack<int, 4> v1(0);
+  psimd::pack<int, 4> v2(2);
+
+  auto result = psimd::select(m, v1, v2);
+
+  psimd::pack<int, 4> expected;
+  expected[0] = 0;
+  expected[1] = 2;
+  expected[2] = 0;
+  expected[3] = 2;
+
+  REQUIRE(psimd::all(result == expected));
+}

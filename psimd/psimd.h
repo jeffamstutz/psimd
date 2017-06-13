@@ -431,4 +431,22 @@ namespace psimd {
     return result;
   }
 
+  template <typename T, int W>
+  inline pack<T, W> select(const mask<W> &m,
+                           const pack<T, W> &t,
+                           const pack<T, W> &f)
+  {
+    pack<T, W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i) {
+      if (m[i])
+        result[i] = t[i];
+      else
+        result[i] = f[i];
+    }
+
+    return result;
+  }
+
 } // ::psimd
