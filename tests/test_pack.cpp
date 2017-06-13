@@ -136,6 +136,25 @@ TEST_CASE("foreach()")
   REQUIRE(psimd::all(v1 == v2));
 }
 
+TEST_CASE("foreach_active()")
+{
+  psimd::mask<4> m(0);
+  m[0] = 1;
+  m[2] = 1;
+
+  psimd::pack<int, 4> v(0);
+
+  psimd::pack<int, 4> expected;
+  expected[0] = 2;
+  expected[1] = 0;
+  expected[2] = 2;
+  expected[3] = 0;
+
+  psimd::foreach_active(m, v, [](int &v){ v = 2; });
+
+  REQUIRE(psimd::all(v == expected));
+}
+
 TEST_CASE("any()")
 {
   vmask m(0);

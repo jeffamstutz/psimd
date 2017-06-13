@@ -397,12 +397,21 @@ namespace psimd {
 
   // pack<> algorithms ////////////////////////////////////////////////////////
 
-  template <typename T, int W, typename TASK_T>
-  inline void foreach(pack<T, W> &p, TASK_T &&task)
+  template <typename T, int W, typename FCN_T>
+  inline void foreach(pack<T, W> &p, FCN_T &&fcn)
   {
     #pragma omp simd
     for (int i = 0; i < W; ++i)
-      task(p[i]);
+      fcn(p[i]);
+  }
+
+  template <typename T, int W, typename FCN_T>
+  inline void foreach_active(const mask<W> &m, pack<T, W> &p, FCN_T &&fcn)
+  {
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      if (m[i])
+        fcn(p[i]);
   }
 
   template <int W>
