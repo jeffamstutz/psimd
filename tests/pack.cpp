@@ -26,7 +26,44 @@
 #include "tests/doctest.h"
 #include "psimd/psimd.h"
 
-TEST_CASE("basic use")
+using vfloat = psimd::pack<float>;
+using vmask  = psimd::mask<DEFAULT_WIDTH>;
+
+// pack<> operators ///////////////////////////////////////////////////////////
+
+TEST_CASE("add")
 {
-  //TODO
+  vfloat v1(1.f), v2(2.f);
+
+  REQUIRE(psimd::all((v1 + v2) == vfloat(3.f)));
+}
+
+// pack<> algorithms //////////////////////////////////////////////////////////
+
+TEST_CASE("foreach")
+{
+  vfloat v1(0.f);
+  vfloat v2(1.f);
+
+  foreach(v1, [](float &l) { l = 1; });
+
+  REQUIRE(psimd::all(v1 == v2));
+}
+
+TEST_CASE("any")
+{
+  vmask m(0);
+  REQUIRE(!psimd::any(m));
+  m[0] = 1;
+  REQUIRE(psimd::any(m));
+}
+
+TEST_CASE("all")
+{
+  vmask m(0);
+  REQUIRE(!psimd::all(m));
+  m[0] = 1;
+  REQUIRE(!psimd::all(m));
+  foreach(m, [](int &l) { l = 1; });
+  REQUIRE(psimd::all(m));
 }
