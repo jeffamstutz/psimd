@@ -22,6 +22,8 @@
 // DEALINGS IN THE SOFTWARE.                                                  //
 // ========================================================================== //
 
+#pragma once
+
 #include <cmath>
 #include <type_traits>
 
