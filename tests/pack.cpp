@@ -27,20 +27,87 @@
 #include "psimd/psimd.h"
 
 using vfloat = psimd::pack<float>;
+using vint   = psimd::pack<int>;
 using vmask  = psimd::mask<DEFAULT_WIDTH>;
 
 // pack<> operators ///////////////////////////////////////////////////////////
 
-TEST_CASE("add")
+TEST_CASE("operator+()")
 {
   vfloat v1(1.f), v2(2.f);
 
-  REQUIRE(psimd::all((v1 + v2) == vfloat(3.f)));
+  REQUIRE(psimd::all((v1 + v2)  == vfloat(3.f)));
+  REQUIRE(psimd::all((v1 + 2.f) == vfloat(3.f)));
+  REQUIRE(psimd::all((2.f + v1) == vfloat(3.f)));
+
+  // Add checks to make sure we don't promote regular math!
+  bool value = std::is_same<decltype(1.f + 1.f), float>::value;
+  value |= std::is_same<decltype(1.f + 1.), double>::value;
+  value |= std::is_same<decltype(1.f + 1), float>::value;
+  REQUIRE(value);
+}
+
+TEST_CASE("operator-()")
+{
+  vfloat v1(2.f), v2(1.f);
+
+  REQUIRE(psimd::all((v1 - v2)  == vfloat(1.f)));
+  REQUIRE(psimd::all((v1 - 2.f) == vfloat(0.f)));
+  REQUIRE(psimd::all((4.f - v1) == vfloat(2.f)));
+
+  // Add checks to make sure we don't promote regular math!
+  bool value = std::is_same<decltype(1.f - 1.f), float>::value;
+  value |= std::is_same<decltype(1.f - 1.), double>::value;
+  value |= std::is_same<decltype(1.f - 1), float>::value;
+  REQUIRE(value);
+}
+
+TEST_CASE("operator*()")
+{
+  vfloat v1(2.f), v2(1.f);
+
+  REQUIRE(psimd::all((v1 * v2)  == vfloat(2.f)));
+  REQUIRE(psimd::all((v1 * 2.f) == vfloat(4.f)));
+  REQUIRE(psimd::all((2.f * v1) == vfloat(4.f)));
+
+  // Add checks to make sure we don't promote regular math!
+  bool value = std::is_same<decltype(1.f * 1.f), float>::value;
+  value |= std::is_same<decltype(1.f * 1.), double>::value;
+  value |= std::is_same<decltype(1.f * 1), float>::value;
+  REQUIRE(value);
+}
+
+TEST_CASE("operator/()")
+{
+  vint v1(4), v2(2);
+
+  REQUIRE(psimd::all((v1 / v2) == vint(2)));
+  REQUIRE(psimd::all((v1 / 2)  == vint(2)));
+  REQUIRE(psimd::all((8 / v1)  == vint(2)));
+
+  // Add checks to make sure we don't promote regular math!
+  bool value = std::is_same<decltype(1.f / 1.f), float>::value;
+  value |= std::is_same<decltype(1.f / 1.), double>::value;
+  value |= std::is_same<decltype(1.f / 1), float>::value;
+  REQUIRE(value);
+}
+
+TEST_CASE("operator%()")
+{
+  vint v1(4), v2(3);
+
+  REQUIRE(psimd::all((v1 % v2) == vint(1)));
+  REQUIRE(psimd::all((v1 % 8)  == vint(4)));
+  REQUIRE(psimd::all((8 % v1)  == vint(0)));
+
+  // Add checks to make sure we don't promote regular math!
+  bool value = std::is_same<decltype(1 % 1), int>::value;
+  REQUIRE(value);
 }
 
 // pack<> algorithms //////////////////////////////////////////////////////////
 
-TEST_CASE("foreach")
+TEST_CASE("foreach()")
 {
   vfloat v1(0.f);
   vfloat v2(1.f);
@@ -50,7 +117,7 @@ TEST_CASE("foreach")
   REQUIRE(psimd::all(v1 == v2));
 }
 
-TEST_CASE("any")
+TEST_CASE("any()")
 {
   vmask m(0);
   REQUIRE(!psimd::any(m));
@@ -58,7 +125,7 @@ TEST_CASE("any")
   REQUIRE(psimd::any(m));
 }
 
-TEST_CASE("all")
+TEST_CASE("all()")
 {
   vmask m(0);
   REQUIRE(!psimd::all(m));
