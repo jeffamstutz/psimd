@@ -163,6 +163,8 @@ TEST_CASE("select()")
   psimd::pack<int, 4> v1(0);
   psimd::pack<int, 4> v2(2);
 
+  REQUIRE(psimd::all(v1 != v2));
+
   auto result = psimd::select(m, v1, v2);
 
   psimd::pack<int, 4> expected;
@@ -172,4 +174,6 @@ TEST_CASE("select()")
   expected[3] = 2;
 
   REQUIRE(psimd::all(result == expected));
+  REQUIRE(psimd::any(v1     != expected));
+  REQUIRE(psimd::any(v2     != expected));
 }
