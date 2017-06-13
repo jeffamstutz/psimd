@@ -105,6 +105,25 @@ TEST_CASE("operator%()")
   REQUIRE(value);
 }
 
+// pack<> math functions //////////////////////////////////////////////////////
+
+TEST_CASE("abs()")
+{
+  vint v1(-4);
+  REQUIRE(psimd::all((v1) != vint(4)));
+  v1 = psimd::abs(v1);
+  REQUIRE(psimd::all((v1) == vint(4)));
+}
+
+TEST_CASE("sqrt()")
+{
+  vfloat v1(4.f);
+  v1 = psimd::sqrt(v1);
+  REQUIRE(psimd::all((v1) == vfloat(2.f)));
+}
+
+//TODO: add sin, cos, tan
+
 // pack<> algorithms //////////////////////////////////////////////////////////
 
 TEST_CASE("foreach()")

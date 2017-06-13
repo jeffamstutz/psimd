@@ -22,6 +22,7 @@
 // DEALINGS IN THE SOFTWARE.                                                  //
 // ========================================================================== //
 
+#include <cmath>
 #include <type_traits>
 
 namespace psimd {
@@ -89,7 +90,7 @@ namespace psimd {
 
     #pragma omp simd
     for (int i = 0; i < W; ++i)
-      result[i] = p1[i] + p2[i];
+      result[i] = (p1[i] + p2[i]);
 
     return result;
   }
@@ -103,7 +104,7 @@ namespace psimd {
 
     #pragma omp simd
     for (int i = 0; i < W; ++i)
-      result[i] = p1[i] + v;
+      result[i] = (p1[i] + v);
 
     return result;
   }
@@ -125,7 +126,7 @@ namespace psimd {
 
     #pragma omp simd
     for (int i = 0; i < W; ++i)
-      result[i] = p1[i] - p2[i];
+      result[i] = (p1[i] - p2[i]);
 
     return result;
   }
@@ -139,7 +140,7 @@ namespace psimd {
 
     #pragma omp simd
     for (int i = 0; i < W; ++i)
-      result[i] = p1[i] - v;
+      result[i] = (p1[i] - v);
 
     return result;
   }
@@ -161,7 +162,7 @@ namespace psimd {
 
     #pragma omp simd
     for (int i = 0; i < W; ++i)
-      result[i] = p1[i] * p2[i];
+      result[i] = (p1[i] * p2[i]);
 
     return result;
   }
@@ -175,7 +176,7 @@ namespace psimd {
 
     #pragma omp simd
     for (int i = 0; i < W; ++i)
-      result[i] = p1[i] * v;
+      result[i] = (p1[i] * v);
 
     return result;
   }
@@ -211,7 +212,7 @@ namespace psimd {
 
     #pragma omp simd
     for (int i = 0; i < W; ++i)
-      result[i] = p1[i] / v;
+      result[i] = (p1[i] / v);
 
     return result;
   }
@@ -233,7 +234,7 @@ namespace psimd {
 
     #pragma omp simd
     for (int i = 0; i < W; ++i)
-      result[i] = p1[i] % p2[i];
+      result[i] = (p1[i] % p2[i]);
 
     return result;
   }
@@ -247,7 +248,7 @@ namespace psimd {
 
     #pragma omp simd
     for (int i = 0; i < W; ++i)
-      result[i] = p1[i] % v;
+      result[i] = (p1[i] % v);
 
     return result;
   }
@@ -269,7 +270,7 @@ namespace psimd {
 
     #pragma omp simd
     for (int i = 0; i < W; ++i)
-      result[i] = p1[i] == p2[i];
+      result[i] = (p1[i] == p2[i]);
 
     return result;
   }
@@ -283,7 +284,7 @@ namespace psimd {
 
     #pragma omp simd
     for (int i = 0; i < W; ++i)
-      result[i] = p1[i] == v;
+      result[i] = (p1[i] == v);
 
     return result;
   }
@@ -294,6 +295,104 @@ namespace psimd {
   operator==(const OTHER_T &v, const pack<T, W> &p1)
   {
     return p1 == v;
+  }
+
+  // operator!=() //
+
+  template <typename T, int W>
+  inline mask<W> operator!=(const pack<T, W> &p1, const pack<T, W> &p2)
+  {
+    mask<W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = (p1[i] != p2[i]);
+
+    return result;
+  }
+
+  template <typename T, int W, typename OTHER_T>
+  inline typename
+  std::enable_if<std::is_convertible<OTHER_T, T>::value, mask<W>>::type
+  operator!=(const pack<T, W> &p1, const OTHER_T &v)
+  {
+    mask<W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = (p1[i] != v);
+
+    return result;
+  }
+
+  template <typename T, int W, typename OTHER_T>
+  inline typename
+  std::enable_if<std::is_convertible<OTHER_T, T>::value, mask<W>>::type
+  operator!=(const OTHER_T &v, const pack<T, W> &p1)
+  {
+    return p1 != v;
+  }
+
+  // pack<> math functions ////////////////////////////////////////////////////
+
+  template <typename T, int W>
+  inline pack<T, W> abs(const pack<T, W> &p)
+  {
+    pack<T, W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = std::abs(p[i]);
+
+    return result;
+  }
+
+  template <typename T, int W>
+  inline pack<T, W> sqrt(const pack<T, W> &p)
+  {
+    pack<T, W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = std::sqrt(p[i]);
+
+    return result;
+  }
+
+  template <typename T, int W>
+  inline pack<T, W> sin(const pack<T, W> &p)
+  {
+    pack<T, W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = std::sin(p[i]);
+
+    return result;
+  }
+
+  template <typename T, int W>
+  inline pack<T, W> cos(const pack<T, W> &p)
+  {
+    pack<T, W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = std::cos(p[i]);
+
+    return result;
+  }
+
+  template <typename T, int W>
+  inline pack<T, W> tan(const pack<T, W> &p)
+  {
+    pack<T, W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = std::tan(p[i]);
+
+    return result;
   }
 
   // pack<> algorithms ////////////////////////////////////////////////////////
