@@ -65,8 +65,8 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 enable_testing()
 
-psimd_add_test(pack
+psimd_add_test(test_pack
   tests/doctest.h
-  tests/pack.cpp
+  tests/test_pack.cpp
   ${PSIMD_SOURCES}
 )

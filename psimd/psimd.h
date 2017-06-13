@@ -51,7 +51,7 @@ namespace psimd {
     // Data //
 
     T data[W];
-    enum {SIZE = W};
+    enum {static_size = W};
   };
 
   template <int W = DEFAULT_WIDTH>
