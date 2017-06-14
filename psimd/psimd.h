@@ -54,6 +54,7 @@ namespace psimd {
 
     T data[W];
     enum {static_size = W};
+    using type = T;
   };
 
   template <int W = DEFAULT_WIDTH>
@@ -119,6 +120,22 @@ namespace psimd {
     return p1 + v;
   }
 
+  // operator+=() //
+
+  template <typename T, int W>
+  inline pack<T, W>& operator+=(pack<T, W> &p1, const pack<T, W> &p2)
+  {
+    return p1 = (p1 + p2);
+  }
+
+  template <typename T, int W, typename OTHER_T>
+  inline typename
+  std::enable_if<std::is_convertible<OTHER_T, T>::value, pack<T, W>&>::type
+  operator+=(pack<T, W> &p1, const OTHER_T &v)
+  {
+    return p1 = (p1 + pack<T, W>(v));
+  }
+
   // operator-() //
 
   template <typename T, int W>
@@ -153,6 +170,22 @@ namespace psimd {
   operator-(const OTHER_T &v, const pack<T, W> &p1)
   {
     return pack<T, W>(v) - p1;
+  }
+
+  // operator-=() //
+
+  template <typename T, int W>
+  inline pack<T, W>& operator-=(pack<T, W> &p1, const pack<T, W> &p2)
+  {
+    return p1 = (p1 - p2);
+  }
+
+  template <typename T, int W, typename OTHER_T>
+  inline typename
+  std::enable_if<std::is_convertible<OTHER_T, T>::value, pack<T, W>&>::type
+  operator-=(pack<T, W> &p1, const OTHER_T &v)
+  {
+    return p1 = (p1 - pack<T, W>(v));
   }
 
   // operator*() //
@@ -191,6 +224,22 @@ namespace psimd {
     return p1 * v;
   }
 
+  // operator*=() //
+
+  template <typename T, int W>
+  inline pack<T, W>& operator*=(pack<T, W> &p1, const pack<T, W> &p2)
+  {
+    return p1 = (p1 * p2);
+  }
+
+  template <typename T, int W, typename OTHER_T>
+  inline typename
+  std::enable_if<std::is_convertible<OTHER_T, T>::value, pack<T, W>&>::type
+  operator*=(pack<T, W> &p1, const OTHER_T &v)
+  {
+    return p1 = (p1 * pack<T, W>(v));
+  }
+
   // operator/() //
 
   template <typename T, int W>
@@ -225,6 +274,22 @@ namespace psimd {
   operator/(const OTHER_T &v, const pack<T, W> &p1)
   {
     return pack<T, W>(v) / p1;
+  }
+
+  // operator/=() //
+
+  template <typename T, int W>
+  inline pack<T, W>& operator/=(pack<T, W> &p1, const pack<T, W> &p2)
+  {
+    return p1 = (p1 / p2);
+  }
+
+  template <typename T, int W, typename OTHER_T>
+  inline typename
+  std::enable_if<std::is_convertible<OTHER_T, T>::value, pack<T, W>&>::type
+  operator/=(pack<T, W> &p1, const OTHER_T &v)
+  {
+    return p1 = (p1 / pack<T, W>(v));
   }
 
   // operator%() //
@@ -263,6 +328,130 @@ namespace psimd {
     return pack<T, W>(v) % p1;
   }
 
+  // operator%=() //
+
+  template <typename T, int W>
+  inline pack<T, W>& operator%=(pack<T, W> &p1, const pack<T, W> &p2)
+  {
+    return p1 = (p1 % p2);
+  }
+
+  template <typename T, int W, typename OTHER_T>
+  inline typename
+  std::enable_if<std::is_convertible<OTHER_T, T>::value, pack<T, W>&>::type
+  operator%=(pack<T, W> &p1, const OTHER_T &v)
+  {
+    return p1 = (p1 % pack<T, W>(v));
+  }
+
+  // operator<<() //
+
+  template <typename T, int W>
+  inline pack<T, W> operator<<(const pack<T, W> &p1, const pack<T, W> &p2)
+  {
+    pack<T, W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = (p1[i] << p2[i]);
+
+    return result;
+  }
+
+  template <typename T, int W, typename OTHER_T>
+  inline typename
+  std::enable_if<std::is_convertible<OTHER_T, T>::value, pack<T, W>>::type
+  operator<<(const pack<T, W> &p1, const OTHER_T &v)
+  {
+    pack<T, W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = (p1[i] << v);
+
+    return result;
+  }
+
+  template <typename T, int W, typename OTHER_T>
+  inline typename
+  std::enable_if<std::is_convertible<OTHER_T, T>::value, pack<T, W>>::type
+  operator<<(const OTHER_T &v, const pack<T, W> &p1)
+  {
+    return pack<T, W>(v) << p1;
+  }
+
+  // operator>>() //
+
+  template <typename T, int W>
+  inline pack<T, W> operator>>(const pack<T, W> &p1, const pack<T, W> &p2)
+  {
+    pack<T, W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = (p1[i] >> p2[i]);
+
+    return result;
+  }
+
+  template <typename T, int W, typename OTHER_T>
+  inline typename
+  std::enable_if<std::is_convertible<OTHER_T, T>::value, pack<T, W>>::type
+  operator>>(const pack<T, W> &p1, const OTHER_T &v)
+  {
+    pack<T, W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = (p1[i] >> v);
+
+    return result;
+  }
+
+  template <typename T, int W, typename OTHER_T>
+  inline typename
+  std::enable_if<std::is_convertible<OTHER_T, T>::value, pack<T, W>>::type
+  operator>>(const OTHER_T &v, const pack<T, W> &p1)
+  {
+    return pack<T, W>(v) >> p1;
+  }
+
+  // operator^() //
+
+  template <typename T, int W>
+  inline pack<T, W> operator^(const pack<T, W> &p1, const pack<T, W> &p2)
+  {
+    pack<T, W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = (p1[i] ^ p2[i]);
+
+    return result;
+  }
+
+  template <typename T, int W, typename OTHER_T>
+  inline typename
+  std::enable_if<std::is_convertible<OTHER_T, T>::value, pack<T, W>>::type
+  operator^(const pack<T, W> &p1, const OTHER_T &v)
+  {
+    pack<T, W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = (p1[i] ^ v);
+
+    return result;
+  }
+
+  template <typename T, int W, typename OTHER_T>
+  inline typename
+  std::enable_if<std::is_convertible<OTHER_T, T>::value, pack<T, W>>::type
+  operator^(const OTHER_T &v, const pack<T, W> &p1)
+  {
+    return pack<T, W>(v) ^ p1;
+  }
+
   // operator==() //
 
   template <typename T, int W>
@@ -272,7 +461,7 @@ namespace psimd {
 
     #pragma omp simd
     for (int i = 0; i < W; ++i)
-      result[i] = (p1[i] == p2[i]);
+      result[i] = (p1[i] == p2[i]) ? 0xFFFFFFFF : 0x00000000;
 
     return result;
   }
@@ -286,7 +475,7 @@ namespace psimd {
 
     #pragma omp simd
     for (int i = 0; i < W; ++i)
-      result[i] = (p1[i] == v);
+      result[i] = (p1[i] == v) ? 0xFFFFFFFF : 0x00000000;
 
     return result;
   }
@@ -308,7 +497,7 @@ namespace psimd {
 
     #pragma omp simd
     for (int i = 0; i < W; ++i)
-      result[i] = (p1[i] != p2[i]);
+      result[i] = (p1[i] != p2[i]) ? 0xFFFFFFFF : 0x00000000;
 
     return result;
   }
@@ -322,7 +511,7 @@ namespace psimd {
 
     #pragma omp simd
     for (int i = 0; i < W; ++i)
-      result[i] = (p1[i] != v);
+      result[i] = (p1[i] != v) ? 0xFFFFFFFF : 0x00000000;
 
     return result;
   }
@@ -333,6 +522,206 @@ namespace psimd {
   operator!=(const OTHER_T &v, const pack<T, W> &p1)
   {
     return p1 != v;
+  }
+
+  // operator<() //
+
+  template <typename T, int W>
+  inline mask<W> operator<(const pack<T, W> &p1, const pack<T, W> &p2)
+  {
+    mask<W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = (p1[i] < p2[i]) ? 0xFFFFFFFF : 0x00000000;
+
+    return result;
+  }
+
+  template <typename T, int W, typename OTHER_T>
+  inline typename
+  std::enable_if<std::is_convertible<OTHER_T, T>::value, mask<W>>::type
+  operator<(const pack<T, W> &p1, const OTHER_T &v)
+  {
+    mask<W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = (p1[i] < v) ? 0xFFFFFFFF : 0x00000000;
+
+    return result;
+  }
+
+  template <typename T, int W, typename OTHER_T>
+  inline typename
+  std::enable_if<std::is_convertible<OTHER_T, T>::value, mask<W>>::type
+  operator<(const OTHER_T &v, const pack<T, W> &p1)
+  {
+    return pack<T, W>(v) < p1;
+  }
+
+  // operator<=() //
+
+  template <typename T, int W>
+  inline mask<W> operator<=(const pack<T, W> &p1, const pack<T, W> &p2)
+  {
+    mask<W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = (p1[i] <= p2[i]) ? 0xFFFFFFFF : 0x00000000;
+
+    return result;
+  }
+
+  template <typename T, int W, typename OTHER_T>
+  inline typename
+  std::enable_if<std::is_convertible<OTHER_T, T>::value, mask<W>>::type
+  operator<=(const pack<T, W> &p1, const OTHER_T &v)
+  {
+    mask<W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = (p1[i] <= v) ? 0xFFFFFFFF : 0x00000000;
+
+    return result;
+  }
+
+  template <typename T, int W, typename OTHER_T>
+  inline typename
+  std::enable_if<std::is_convertible<OTHER_T, T>::value, mask<W>>::type
+  operator<=(const OTHER_T &v, const pack<T, W> &p1)
+  {
+    return pack<T, W>(v) <= p1;
+  }
+
+  // operator>() //
+
+  template <typename T, int W>
+  inline mask<W> operator>(const pack<T, W> &p1, const pack<T, W> &p2)
+  {
+    mask<W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = (p1[i] > p2[i]) ? 0xFFFFFFFF : 0x00000000;
+
+    return result;
+  }
+
+  template <typename T, int W, typename OTHER_T>
+  inline typename
+  std::enable_if<std::is_convertible<OTHER_T, T>::value, mask<W>>::type
+  operator>(const pack<T, W> &p1, const OTHER_T &v)
+  {
+    mask<W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = (p1[i] > v) ? 0xFFFFFFFF : 0x00000000;
+
+    return result;
+  }
+
+  template <typename T, int W, typename OTHER_T>
+  inline typename
+  std::enable_if<std::is_convertible<OTHER_T, T>::value, mask<W>>::type
+  operator>(const OTHER_T &v, const pack<T, W> &p1)
+  {
+    return pack<T, W>(v) > p1;
+  }
+
+  // operator>=() //
+
+  template <typename T, int W>
+  inline mask<W> operator>=(const pack<T, W> &p1, const pack<T, W> &p2)
+  {
+    mask<W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = (p1[i] >= p2[i]) ? 0xFFFFFFFF : 0x00000000;
+
+    return result;
+  }
+
+  template <typename T, int W, typename OTHER_T>
+  inline typename
+  std::enable_if<std::is_convertible<OTHER_T, T>::value, mask<W>>::type
+  operator>=(const pack<T, W> &p1, const OTHER_T &v)
+  {
+    mask<W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = (p1[i] >= v) ? 0xFFFFFFFF : 0x00000000;
+
+    return result;
+  }
+
+  template <typename T, int W, typename OTHER_T>
+  inline typename
+  std::enable_if<std::is_convertible<OTHER_T, T>::value, mask<W>>::type
+  operator>=(const OTHER_T &v, const pack<T, W> &p1)
+  {
+    return pack<T, W>(v) >= p1;
+  }
+
+  // operator&&() //
+
+  template <int W>
+  inline mask<W> operator&&(const mask<W> &m1, const mask<W> &m2)
+  {
+    mask<W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = (m1[i] && m2[i]) ? 0xFFFFFFFF : 0x00000000;
+
+    return result;
+  }
+
+  // operator||() //
+
+  template <int W>
+  inline mask<W> operator||(const mask<W> &m1, const mask<W> &m2)
+  {
+    mask<W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = (m1[i] || m2[i]) ? 0xFFFFFFFF : 0x00000000;
+
+    return result;
+  }
+
+  // operator!() //
+
+  template <int W>
+  inline mask<W> operator!(const mask<W> &m)
+  {
+    mask<W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = !m[i] ? 0xFFFFFFFF : 0x00000000;
+
+    return result;
+  }
+
+  // operator-() //
+
+  template <typename T, int W>
+  inline pack<T, W> operator-(const pack<T, W> &p)
+  {
+    pack<T, W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = -p[i];
+
+    return result;
   }
 
   // pack<> math functions ////////////////////////////////////////////////////
@@ -404,7 +793,16 @@ namespace psimd {
   {
     #pragma omp simd
     for (int i = 0; i < W; ++i)
-      fcn(p[i]);
+      fcn(p[i], i);
+  }
+
+  template <int W, typename FCN_T>
+  inline void foreach_active(const mask<W> &m, FCN_T &&fcn)
+  {
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      if (m[i])
+        fcn(i);
   }
 
   template <typename T, int W, typename FCN_T>
@@ -427,6 +825,12 @@ namespace psimd {
         result = true;
 
     return result;
+  }
+
+  template <int W>
+  inline bool none(const mask<W> &m)
+  {
+    return !any(m);
   }
 
   template <int W>
@@ -458,6 +862,29 @@ namespace psimd {
     }
 
     return result;
+  }
+
+  // pack<> memory operations /////////////////////////////////////////////////
+
+  template <typename PACK_T>
+  inline PACK_T load(void* _from)
+  {
+    auto *from = (typename PACK_T::type*) _from;
+    PACK_T result;
+
+    #pragma omp simd
+    for (int i = 0; i < PACK_T::static_size; ++i)
+      result[i] = from[i];
+
+    return result;
+  }
+
+  template <typename T, int W, typename OFFSET_T>
+  inline void store(const pack<T, W> &p, T* dst, const pack<OFFSET_T, W> &o)
+  {
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      dst[o[i]] = p[i];
   }
 
 } // ::psimd
