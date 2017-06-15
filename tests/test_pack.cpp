@@ -30,9 +30,26 @@ using vfloat = psimd::pack<float>;
 using vint   = psimd::pack<int>;
 using vmask  = psimd::mask<DEFAULT_WIDTH>;
 
+/* TODO: add tests for -->
+ *         - operator<()
+ *         - operator>()
+ *         - operator<=()
+ *         - operator>=()
+ *         - operator<<()
+ *         - operator>>()
+ *         - operator&&()
+ *         - operator||()
+ *         - operator!()
+ *         - operator^()
+ *         - operator!()
+ *         - none()
+ *         - load()
+ *         - store()
+ */
+
 // pack<> operators ///////////////////////////////////////////////////////////
 
-TEST_CASE("operator+()")
+TEST_CASE("binary operator+()")
 {
   vfloat v1(1.f), v2(2.f);
 
@@ -47,7 +64,25 @@ TEST_CASE("operator+()")
   REQUIRE(value);
 }
 
-TEST_CASE("operator-()")
+TEST_CASE("binary operator+=()")
+{
+  vfloat v1(1.f), v2(2.f);
+
+  v1 += v2;
+  v2 += 1.f;
+
+  REQUIRE(psimd::all(v1 == vfloat(3.f)));
+  REQUIRE(psimd::all(v2 == vfloat(3.f)));
+}
+
+TEST_CASE("unary operator-()")
+{
+  vint v1(2);
+
+  REQUIRE(psimd::all(-v1 == vint(-2)));
+}
+
+TEST_CASE("binary operator-()")
 {
   vfloat v1(2.f), v2(1.f);
 
@@ -62,7 +97,18 @@ TEST_CASE("operator-()")
   REQUIRE(value);
 }
 
-TEST_CASE("operator*()")
+TEST_CASE("binary operator-=()")
+{
+  vint v1(1), v2(2);
+
+  v1 -= v2;
+  v2 -= 1;
+
+  REQUIRE(psimd::all(v1 == vint(-1)));
+  REQUIRE(psimd::all(v2 == vint(1)));
+}
+
+TEST_CASE("binary operator*()")
 {
   vfloat v1(2.f), v2(1.f);
 
@@ -77,7 +123,18 @@ TEST_CASE("operator*()")
   REQUIRE(value);
 }
 
-TEST_CASE("operator/()")
+TEST_CASE("binary operator*=()")
+{
+  vint v1(1), v2(2);
+
+  v1 *= v2;
+  v2 *= 2;
+
+  REQUIRE(psimd::all(v1 == vint(2)));
+  REQUIRE(psimd::all(v2 == vint(4)));
+}
+
+TEST_CASE("binary operator/()")
 {
   vint v1(4), v2(2);
 
@@ -92,7 +149,18 @@ TEST_CASE("operator/()")
   REQUIRE(value);
 }
 
-TEST_CASE("operator%()")
+TEST_CASE("binary operator/=()")
+{
+  vint v1(8), v2(4);
+
+  v1 /= v2;
+  v2 /= 2;
+
+  REQUIRE(psimd::all(v1 == vint(2)));
+  REQUIRE(psimd::all(v2 == vint(2)));
+}
+
+TEST_CASE("binary operator%()")
 {
   vint v1(4), v2(3);
 
@@ -103,6 +171,17 @@ TEST_CASE("operator%()")
   // Add checks to make sure we don't promote regular math!
   bool value = std::is_same<decltype(1 % 1), int>::value;
   REQUIRE(value);
+}
+
+TEST_CASE("binary operator%=()")
+{
+  vint v1(5), v2(4);
+
+  v1 %= v2;
+  v2 %= 3;
+
+  REQUIRE(psimd::all(v1 == vint(1)));
+  REQUIRE(psimd::all(v2 == vint(1)));
 }
 
 // pack<> math functions //////////////////////////////////////////////////////
@@ -131,7 +210,7 @@ TEST_CASE("foreach()")
   vfloat v1(0.f);
   vfloat v2(1.f);
 
-  foreach(v1, [](float &l) { l = 1; });
+  foreach(v1, [](float &l, int) { l = 1; });
 
   REQUIRE(psimd::all(v1 == v2));
 }
@@ -169,7 +248,7 @@ TEST_CASE("all()")
   REQUIRE(!psimd::all(m));
   m[0] = 1;
   REQUIRE(!psimd::all(m));
-  foreach(m, [](int &l) { l = 1; });
+  foreach(m, [](int &l, int) { l = 1; });
   REQUIRE(psimd::all(m));
 }
 
