@@ -82,7 +82,7 @@ namespace psimd {
     return data[i];
   }
 
-  // pack<> operators /////////////////////////////////////////////////////////
+  // pack<> arithmetic operators //////////////////////////////////////////////
 
   // binary operator+() //
 
@@ -451,6 +451,8 @@ namespace psimd {
   {
     return pack<T, W>(v) ^ p1;
   }
+
+  // pack<> logic operators ///////////////////////////////////////////////////
 
   // binary operator==() //
 

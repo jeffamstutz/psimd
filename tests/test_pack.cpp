@@ -31,21 +31,14 @@ using vint   = psimd::pack<int>;
 using vmask  = psimd::mask<DEFAULT_WIDTH>;
 
 /* TODO: add tests for -->
- *         - operator<()
- *         - operator>()
- *         - operator<=()
- *         - operator>=()
  *         - operator<<()
  *         - operator>>()
- *         - operator&&()
- *         - operator||()
- *         - operator!=()
  *         - operator^()
  *         - load()
  *         - store()
  */
 
-// pack<> operators ///////////////////////////////////////////////////////////
+// pack<> arithmetic operators ////////////////////////////////////////////////
 
 TEST_CASE("binary operator+()")
 {
@@ -175,6 +168,98 @@ TEST_CASE("binary operator%=()")
   REQUIRE(psimd::all(v2 == vint(1)));
 }
 
+// pack<> logic operators /////////////////////////////////////////////////////
+
+TEST_CASE("binary operator==()")
+{
+  vint v1(1);
+  vint v2(1);
+
+  REQUIRE(psimd::all(v1 == v2));
+  REQUIRE(psimd::all(1  == v1));
+  REQUIRE(psimd::all(v1 == 1));
+
+  v1[0] = 2;
+
+  REQUIRE(!psimd::all(v1 == v2));
+  REQUIRE(!psimd::all(1  == v1));
+  REQUIRE(!psimd::all(v1 == 1));
+}
+
+TEST_CASE("binary operator==()")
+{
+  vint v1(1);
+  vint v2(2);
+
+  REQUIRE(psimd::all(v1 != v2));
+  REQUIRE(psimd::all(1  != v2));
+  REQUIRE(psimd::all(v2 != 1));
+
+  v1[0] = 2;
+
+  REQUIRE(!psimd::all(v1 != v2));
+}
+
+TEST_CASE("binary operator<()")
+{
+  vint v1(1);
+  vint v2(2);
+
+  REQUIRE(psimd::all(v1 < v2));
+  REQUIRE(psimd::all(1  < v2));
+  REQUIRE(psimd::all(v1 < 2));
+}
+
+TEST_CASE("binary operator<=()")
+{
+  vint v1(1);
+  vint v2(2);
+
+  v1[0] = 2;
+
+  REQUIRE(psimd::all(v1 <= v2));
+  REQUIRE(psimd::all(1  <= v2));
+  REQUIRE(psimd::all(v1 <= 2));
+}
+
+TEST_CASE("binary operator>()")
+{
+  vint v1(2);
+  vint v2(1);
+
+  REQUIRE(psimd::all(v1 > v2));
+  REQUIRE(psimd::all(2  > v2));
+  REQUIRE(psimd::all(v1 > 1));
+}
+
+TEST_CASE("binary operator>=()")
+{
+  vint v1(2);
+  vint v2(1);
+
+  v2[0] = 0;
+
+  REQUIRE(psimd::all(v1 >= v2));
+  REQUIRE(psimd::all(1  >= v2));
+  REQUIRE(psimd::all(v1 >= 2));
+}
+
+TEST_CASE("binary operator&&()")
+{
+  vmask m1(true);
+  vmask m2(false);
+
+  REQUIRE(psimd::none(m1 && m2));
+}
+
+TEST_CASE("binary operator||()")
+{
+  vmask m1(true);
+  vmask m2(false);
+
+  REQUIRE(psimd::all(m1 || m2));
+}
+
 TEST_CASE("unary operator!()")
 {
   vmask v(true);
@@ -206,7 +291,26 @@ TEST_CASE("sqrt()")
   REQUIRE(psimd::all((v1) == vfloat(2.f)));
 }
 
-//TODO: add sin, cos, tan
+TEST_CASE("sin()")
+{
+  vfloat v1(4.f);
+  v1 = psimd::sin(v1);
+  REQUIRE(psimd::all((v1) == vfloat(sin(4.f))));
+}
+
+TEST_CASE("cos()")
+{
+  vfloat v1(4.f);
+  v1 = psimd::cos(v1);
+  REQUIRE(psimd::all((v1) == vfloat(cos(4.f))));
+}
+
+TEST_CASE("tan()")
+{
+  vfloat v1(4.f);
+  v1 = psimd::tan(v1);
+  REQUIRE(psimd::all((v1) == vfloat(tan(4.f))));
+}
 
 // pack<> algorithms //////////////////////////////////////////////////////////
 
