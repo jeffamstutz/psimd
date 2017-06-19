@@ -39,10 +39,8 @@ using vmask  = psimd::mask<DEFAULT_WIDTH>;
  *         - operator>>()
  *         - operator&&()
  *         - operator||()
- *         - operator!()
+ *         - operator!=()
  *         - operator^()
- *         - operator!()
- *         - none()
  *         - load()
  *         - store()
  */
@@ -73,13 +71,6 @@ TEST_CASE("binary operator+=()")
 
   REQUIRE(psimd::all(v1 == vfloat(3.f)));
   REQUIRE(psimd::all(v2 == vfloat(3.f)));
-}
-
-TEST_CASE("unary operator-()")
-{
-  vint v1(2);
-
-  REQUIRE(psimd::all(-v1 == vint(-2)));
 }
 
 TEST_CASE("binary operator-()")
@@ -184,6 +175,20 @@ TEST_CASE("binary operator%=()")
   REQUIRE(psimd::all(v2 == vint(1)));
 }
 
+TEST_CASE("unary operator!()")
+{
+  vmask v(true);
+
+  REQUIRE(psimd::all(!v == vmask(false)));
+}
+
+TEST_CASE("unary operator-()")
+{
+  vint v1(2);
+
+  REQUIRE(psimd::all(-v1 == vint(-2)));
+}
+
 // pack<> math functions //////////////////////////////////////////////////////
 
 TEST_CASE("abs()")
@@ -240,6 +245,14 @@ TEST_CASE("any()")
   REQUIRE(!psimd::any(m));
   m[0] = 1;
   REQUIRE(psimd::any(m));
+}
+
+TEST_CASE("none()")
+{
+  vmask m(0);
+  REQUIRE(psimd::none(m));
+  m[0] = 1;
+  REQUIRE(!psimd::none(m));
 }
 
 TEST_CASE("all()")

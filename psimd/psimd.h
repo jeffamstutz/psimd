@@ -84,7 +84,7 @@ namespace psimd {
 
   // pack<> operators /////////////////////////////////////////////////////////
 
-  // operator+() //
+  // binary operator+() //
 
   template <typename T, int W>
   inline pack<T, W> operator+(const pack<T, W> &p1, const pack<T, W> &p2)
@@ -120,7 +120,7 @@ namespace psimd {
     return p1 + v;
   }
 
-  // operator+=() //
+  // binary operator+=() //
 
   template <typename T, int W>
   inline pack<T, W>& operator+=(pack<T, W> &p1, const pack<T, W> &p2)
@@ -136,7 +136,7 @@ namespace psimd {
     return p1 = (p1 + pack<T, W>(v));
   }
 
-  // operator-() //
+  // binary operator-() //
 
   template <typename T, int W>
   inline pack<T, W> operator-(const pack<T, W> &p1, const pack<T, W> &p2)
@@ -172,7 +172,7 @@ namespace psimd {
     return pack<T, W>(v) - p1;
   }
 
-  // operator-=() //
+  // binary operator-=() //
 
   template <typename T, int W>
   inline pack<T, W>& operator-=(pack<T, W> &p1, const pack<T, W> &p2)
@@ -188,7 +188,7 @@ namespace psimd {
     return p1 = (p1 - pack<T, W>(v));
   }
 
-  // operator*() //
+  // binary operator*() //
 
   template <typename T, int W>
   inline pack<T, W> operator*(const pack<T, W> &p1, const pack<T, W> &p2)
@@ -224,7 +224,7 @@ namespace psimd {
     return p1 * v;
   }
 
-  // operator*=() //
+  // binary operator*=() //
 
   template <typename T, int W>
   inline pack<T, W>& operator*=(pack<T, W> &p1, const pack<T, W> &p2)
@@ -240,7 +240,7 @@ namespace psimd {
     return p1 = (p1 * pack<T, W>(v));
   }
 
-  // operator/() //
+  // binary operator/() //
 
   template <typename T, int W>
   inline pack<T, W> operator/(const pack<T, W> &p1, const pack<T, W> &p2)
@@ -276,7 +276,7 @@ namespace psimd {
     return pack<T, W>(v) / p1;
   }
 
-  // operator/=() //
+  // binary operator/=() //
 
   template <typename T, int W>
   inline pack<T, W>& operator/=(pack<T, W> &p1, const pack<T, W> &p2)
@@ -292,7 +292,7 @@ namespace psimd {
     return p1 = (p1 / pack<T, W>(v));
   }
 
-  // operator%() //
+  // binary operator%() //
 
   template <typename T, int W>
   inline pack<T, W> operator%(const pack<T, W> &p1, const pack<T, W> &p2)
@@ -328,7 +328,7 @@ namespace psimd {
     return pack<T, W>(v) % p1;
   }
 
-  // operator%=() //
+  // binary operator%=() //
 
   template <typename T, int W>
   inline pack<T, W>& operator%=(pack<T, W> &p1, const pack<T, W> &p2)
@@ -344,7 +344,7 @@ namespace psimd {
     return p1 = (p1 % pack<T, W>(v));
   }
 
-  // operator<<() //
+  // binary operator<<() //
 
   template <typename T, int W>
   inline pack<T, W> operator<<(const pack<T, W> &p1, const pack<T, W> &p2)
@@ -380,7 +380,7 @@ namespace psimd {
     return pack<T, W>(v) << p1;
   }
 
-  // operator>>() //
+  // binary operator>>() //
 
   template <typename T, int W>
   inline pack<T, W> operator>>(const pack<T, W> &p1, const pack<T, W> &p2)
@@ -416,7 +416,7 @@ namespace psimd {
     return pack<T, W>(v) >> p1;
   }
 
-  // operator^() //
+  // binary operator^() //
 
   template <typename T, int W>
   inline pack<T, W> operator^(const pack<T, W> &p1, const pack<T, W> &p2)
@@ -452,7 +452,7 @@ namespace psimd {
     return pack<T, W>(v) ^ p1;
   }
 
-  // operator==() //
+  // binary operator==() //
 
   template <typename T, int W>
   inline mask<W> operator==(const pack<T, W> &p1, const pack<T, W> &p2)
@@ -488,7 +488,7 @@ namespace psimd {
     return p1 == v;
   }
 
-  // operator!=() //
+  // binary operator!=() //
 
   template <typename T, int W>
   inline mask<W> operator!=(const pack<T, W> &p1, const pack<T, W> &p2)
@@ -524,7 +524,7 @@ namespace psimd {
     return p1 != v;
   }
 
-  // operator<() //
+  // binary operator<() //
 
   template <typename T, int W>
   inline mask<W> operator<(const pack<T, W> &p1, const pack<T, W> &p2)
@@ -560,7 +560,7 @@ namespace psimd {
     return pack<T, W>(v) < p1;
   }
 
-  // operator<=() //
+  // binary operator<=() //
 
   template <typename T, int W>
   inline mask<W> operator<=(const pack<T, W> &p1, const pack<T, W> &p2)
@@ -596,7 +596,7 @@ namespace psimd {
     return pack<T, W>(v) <= p1;
   }
 
-  // operator>() //
+  // binary operator>() //
 
   template <typename T, int W>
   inline mask<W> operator>(const pack<T, W> &p1, const pack<T, W> &p2)
@@ -632,7 +632,7 @@ namespace psimd {
     return pack<T, W>(v) > p1;
   }
 
-  // operator>=() //
+  // binary operator>=() //
 
   template <typename T, int W>
   inline mask<W> operator>=(const pack<T, W> &p1, const pack<T, W> &p2)
@@ -668,7 +668,7 @@ namespace psimd {
     return pack<T, W>(v) >= p1;
   }
 
-  // operator&&() //
+  // binary operator&&() //
 
   template <int W>
   inline mask<W> operator&&(const mask<W> &m1, const mask<W> &m2)
@@ -682,7 +682,7 @@ namespace psimd {
     return result;
   }
 
-  // operator||() //
+  // binary operator||() //
 
   template <int W>
   inline mask<W> operator||(const mask<W> &m1, const mask<W> &m2)
@@ -696,7 +696,7 @@ namespace psimd {
     return result;
   }
 
-  // operator!() //
+  // unary operator!() //
 
   template <int W>
   inline mask<W> operator!(const mask<W> &m)
@@ -710,7 +710,7 @@ namespace psimd {
     return result;
   }
 
-  // operator-() //
+  // unary operator-() //
 
   template <typename T, int W>
   inline pack<T, W> operator-(const pack<T, W> &p)
