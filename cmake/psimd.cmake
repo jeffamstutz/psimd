@@ -59,15 +59,3 @@ macro(psimd_configure_compiler)
     message(FATAL_ERROR "Unsupported compiler: '${CMAKE_CXX_COMPILER_ID}'")
   endif()
 endmacro()
-
-## Test target creation macro ##
-
-macro(psimd_add_test test_name)
-  add_executable(${test_name} ${ARGN})
-
-  if(DEFINED TASKING_SYSTEM_LIBS)
-    target_link_libraries(${test_name} ${TASKING_SYSTEM_LIBS})
-  endif()
-
-  add_test(${test_name} tests/${test_name})
-endmacro()

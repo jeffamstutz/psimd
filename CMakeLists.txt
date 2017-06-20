@@ -52,7 +52,6 @@ if(OPENMP_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
   set(CMAKE_EXE_LINKER_FLAGS
       "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-  add_definitions(-DCPW_TASKING_OMP)
 endif()
 
 set(PSIMD_SOURCES
@@ -65,8 +64,23 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 enable_testing()
 
-psimd_add_test(test_pack
+add_executable(test_pack
   tests/doctest.h
   tests/test_pack.cpp
   ${PSIMD_SOURCES}
 )
+
+add_test(arithmetic_operators
+         tests/test_pack "--test-suite=\"arithmetic operators\"")
+
+add_test(bitwise_operators
+         tests/test_pack "--test-suite=\"bitwise operators\"")
+
+add_test(logic_operators
+         tests/test_pack "--test-suite=\"logic operators\"")
+
+add_test(math_functions
+         tests/test_pack "--test-suite=\"math functions\"")
+
+add_test(algorithms
+         tests/test_pack "--test-suite=\"algorithms\"")

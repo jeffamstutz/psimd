@@ -43,6 +43,8 @@ using vmask  = psimd::mask<DEFAULT_WIDTH>;
 
 // pack<> arithmetic operators ////////////////////////////////////////////////
 
+TEST_SUITE_BEGIN("arithmetic operators");
+
 TEST_CASE("binary operator+()")
 {
   vfloat v1(1.f), v2(2.f);
@@ -171,7 +173,11 @@ TEST_CASE("binary operator%=()")
   REQUIRE(psimd::all(v2 == vint(1)));
 }
 
+TEST_SUITE_END();
+
 // pack<> bitwise operators ///////////////////////////////////////////////////
+
+TEST_SUITE_BEGIN("bitwise operators");
 
 TEST_CASE("binary operator<<()")
 {
@@ -203,7 +209,11 @@ TEST_CASE("binary operator^()")
   REQUIRE(psimd::all((2 ^ v1)  == vint(3)));
 }
 
+TEST_SUITE_END();
+
 // pack<> logic operators /////////////////////////////////////////////////////
+
+TEST_SUITE_BEGIN("logic operators");
 
 TEST_CASE("binary operator==()")
 {
@@ -309,7 +319,11 @@ TEST_CASE("unary operator-()")
   REQUIRE(psimd::all(-v1 == vint(-2)));
 }
 
+TEST_SUITE_END();
+
 // pack<> math functions //////////////////////////////////////////////////////
+
+TEST_SUITE_BEGIN("math functions");
 
 TEST_CASE("abs()")
 {
@@ -347,7 +361,11 @@ TEST_CASE("tan()")
   REQUIRE(psimd::all((v1) == vfloat(tan(4.f))));
 }
 
+TEST_SUITE_END();
+
 // pack<> algorithms //////////////////////////////////////////////////////////
+
+TEST_SUITE_BEGIN("algorithms");
 
 TEST_CASE("foreach()")
 {
@@ -428,7 +446,11 @@ TEST_CASE("select()")
   REQUIRE(psimd::any(v2     != expected));
 }
 
+TEST_SUITE_END();
+
 // pack<> memory operations ///////////////////////////////////////////////////
+
+TEST_SUITE_BEGIN("memory operations");
 
 TEST_CASE("load()")
 {
@@ -454,3 +476,5 @@ TEST_CASE("store()")
     REQUIRE(v == 5);
   });
 }
+
+TEST_SUITE_END();
