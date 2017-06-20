@@ -26,6 +26,9 @@
 #include "tests/doctest.h"
 #include "psimd/psimd.h"
 
+#include <algorithm>
+#include <vector>
+
 using vfloat = psimd::pack<float>;
 using vint   = psimd::pack<int>;
 using vmask  = psimd::mask<DEFAULT_WIDTH>;
@@ -166,6 +169,38 @@ TEST_CASE("binary operator%=()")
 
   REQUIRE(psimd::all(v1 == vint(1)));
   REQUIRE(psimd::all(v2 == vint(1)));
+}
+
+// pack<> bitwise operators ///////////////////////////////////////////////////
+
+TEST_CASE("binary operator<<()")
+{
+  vint v1(1);
+  vint v2(1);
+
+  REQUIRE(psimd::all((v1 << v2) == vint(2)));
+  REQUIRE(psimd::all((v1 << 1)  == vint(2)));
+  REQUIRE(psimd::all((1 << v1)  == vint(2)));
+}
+
+TEST_CASE("binary operator>>()")
+{
+  vint v1(2);
+  vint v2(1);
+
+  REQUIRE(psimd::all((v1 >> v2) == vint(1)));
+  REQUIRE(psimd::all((v1 >> 1)  == vint(1)));
+  REQUIRE(psimd::all((4 >> v1)  == vint(1)));
+}
+
+TEST_CASE("binary operator^()")
+{
+  vint v1(1);
+  vint v2(2);
+
+  REQUIRE(psimd::all((v1 ^ v2) == vint(3)));
+  REQUIRE(psimd::all((v1 ^ 2)  == vint(3)));
+  REQUIRE(psimd::all((2 ^ v1)  == vint(3)));
 }
 
 // pack<> logic operators /////////////////////////////////////////////////////
@@ -391,4 +426,31 @@ TEST_CASE("select()")
   REQUIRE(psimd::all(result == expected));
   REQUIRE(psimd::any(v1     != expected));
   REQUIRE(psimd::any(v2     != expected));
+}
+
+// pack<> memory operations ///////////////////////////////////////////////////
+
+TEST_CASE("load()")
+{
+  std::vector<float> values(DEFAULT_WIDTH);
+  std::fill(values.begin(), values.end(), 5.f);
+
+  vfloat v1 = psimd::load<vfloat>(values.data());
+  REQUIRE(psimd::all(v1 == 5.f));
+}
+
+TEST_CASE("store()")
+{
+  std::vector<int> values(DEFAULT_WIDTH);
+
+  vint v1(5);
+
+  vint offset;
+  for (int i = 0; i < DEFAULT_WIDTH; ++i)
+    offset[i] = i;
+
+  psimd::store(v1, values.data(), offset);
+  std::for_each(values.begin(), values.end(), [](int v) {
+    REQUIRE(v == 5);
+  });
 }

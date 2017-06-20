@@ -344,6 +344,8 @@ namespace psimd {
     return p1 = (p1 % pack<T, W>(v));
   }
 
+  // pack<> bitwise operators /////////////////////////////////////////////////
+
   // binary operator<<() //
 
   template <typename T, int W>
