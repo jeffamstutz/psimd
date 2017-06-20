@@ -53,6 +53,7 @@ script:
   - cd build
   - cmake ${CMAKE_OPTIONS} ..
   - cmake --build .
+  - ctest .
 
 notifications:
   email:
