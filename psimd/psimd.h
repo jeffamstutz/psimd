@@ -31,7 +31,9 @@ namespace psimd {
 
   // FUTURE CONFIG ITEMS //////////////////////////////////////////////////////
 
-#define DEFAULT_WIDTH 8
+#ifndef DEFAULT_WIDTH
+#  define DEFAULT_WIDTH 8
+#endif
 
 #ifdef _WIN32
 #  define PSIMD_ALIGN(...) __declspec(align(__VA_ARGS__))
