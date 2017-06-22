@@ -58,6 +58,8 @@ inline void writePPM(const std::string &fileName,
   fclose(file);
 }
 
+// psimd version //////////////////////////////////////////////////////////////
+
 inline vint mandel_psimd(const vmask &_active,
                          const vfloat &c_re,
                          const vfloat &c_im,
@@ -105,6 +107,47 @@ void mandelbrot_psimd(float x0, float y0,
     }
   }
 }
+
+// omp version ////////////////////////////////////////////////////////////////
+
+#pragma omp declare simd
+inline int mandel_omp(float c_re, float c_im, int count)
+{
+  float z_re = c_re, z_im = c_im;
+  int i;
+  for (i = 0; i < count; ++i) {
+    if (z_re * z_re + z_im * z_im > 4.f)
+      break;
+
+    float new_re = z_re*z_re - z_im*z_im;
+    float new_im = 2.f * z_re * z_im;
+    z_re = c_re + new_re;
+    z_im = c_im + new_im;
+  }
+
+  return i;
+}
+
+void mandelbrot_omp(float x0, float y0, float x1, float y1,
+                    int width, int height, int maxIterations,
+                    int output[])
+{
+  float dx = (x1 - x0) / width;
+  float dy = (y1 - y0) / height;
+
+  for (int j = 0; j < height; j++) {
+#   pragma omp simd
+    for (int i = 0; i < width; ++i) {
+      float x = x0 + i * dx;
+      float y = y0 + j * dy;
+
+      int index = (j * width + i);
+      output[index] = mandel_omp(x, y, maxIterations);
+    }
+  }
+}
+
+// scalar version /////////////////////////////////////////////////////////////
 
 inline int mandel_scalar(float c_re, float c_im, int count)
 {
@@ -157,9 +200,11 @@ int main()
 
   psimd::foreach(programIndex, [](int &v, int i) { v = i; });
 
+	auto bencher = pico_bench::Benchmarker<milliseconds>{16, seconds{4}};
+
 	std::cout << "starting benchmarks (results in 'ms')... " << '\n';
 
-	auto bencher = pico_bench::Benchmarker<milliseconds>{16, seconds{4}};
+  // scalar run ///////////////////////////////////////////////////////////////
 
 	auto stats = bencher([&](){
     mandelbrot_scalar(x0, y0, x1, y1, width, height, maxIters, buf.data());
@@ -169,6 +214,18 @@ int main()
 
 	std::cout << '\n' << "scalar " << stats << '\n';
 
+  // omp run //////////////////////////////////////////////////////////////////
+
+	stats = bencher([&](){
+    mandelbrot_omp(x0, y0, x1, y1, width, height, maxIters, buf.data());
+  });
+
+  const float omp_min = stats.min().count();
+
+	std::cout << '\n' << "omp " << stats << '\n';
+
+  // psimd run ////////////////////////////////////////////////////////////////
+
 	stats = bencher([&](){
     mandelbrot_psimd(x0, y0, x1, y1, width, height, maxIters, buf.data());
   });
@@ -177,12 +234,22 @@ int main()
 
 	std::cout << '\n' << "psimd " << stats << '\n';
 
-	std::cout << '\n' << "psimd provided a " << scalar_min / psimd_min
-            << "x improvement" << '\n';
+  // conclusions //////////////////////////////////////////////////////////////
+
+	std::cout << '\n' << "Conclusions: " << '\n';
+
+	std::cout << '\n' << "--> omp was " << scalar_min / omp_min
+            << "x the speed of the scalar version" << '\n';
+
+	std::cout << '\n' << "--> psimd was " << scalar_min / psimd_min
+            << "x the speed of the scalar version" << '\n';
+
+	std::cout << '\n' << "--> psimd was " << omp_min / psimd_min
+            << "x the speed of omp" << '\n';
 
   writePPM("mandelbrot.ppm", width, height, buf.data());
 
-  std::cout << "wrote output image to 'mandelbrot.ppm'" << '\n';
+  std::cout << '\n' << "wrote output image to 'mandelbrot.ppm'" << '\n';
 
   return 0;
 }
