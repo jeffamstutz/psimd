@@ -452,7 +452,7 @@ TEST_SUITE_END();
 
 TEST_SUITE_BEGIN("memory operations");
 
-TEST_CASE("coherent load()")
+TEST_CASE("unmasked load()")
 {
   std::vector<int> values(DEFAULT_WIDTH);
   std::fill(values.begin(), values.end(), 5);
@@ -461,7 +461,7 @@ TEST_CASE("coherent load()")
   REQUIRE(psimd::all(v1 == 5));
 }
 
-TEST_CASE("incoherent load()")
+TEST_CASE("unmasked gather()")
 {
   std::vector<int> values(DEFAULT_WIDTH);
   std::fill(values.begin(), values.end(), 4);
@@ -470,12 +470,12 @@ TEST_CASE("incoherent load()")
   for (int i = 0; i < DEFAULT_WIDTH; ++i)
     offset[i] = i;
 
-  auto result = psimd::load<vint>(values.data(), offset);
+  auto result = psimd::gather<vint>(values.data(), offset);
 
   REQUIRE(psimd::all(result == 4));
 }
 
-TEST_CASE("coherent store()")
+TEST_CASE("unmasked store()")
 {
   std::vector<int> values(DEFAULT_WIDTH);
 
@@ -488,7 +488,7 @@ TEST_CASE("coherent store()")
   });
 }
 
-TEST_CASE("incoherent store()")
+TEST_CASE("unmasked scatter()")
 {
   std::vector<int> values(DEFAULT_WIDTH);
 
@@ -498,7 +498,7 @@ TEST_CASE("incoherent store()")
   for (int i = 0; i < DEFAULT_WIDTH; ++i)
     offset[i] = i;
 
-  psimd::store(v1, values.data(), offset);
+  psimd::scatter(v1, values.data(), offset);
 
   std::for_each(values.begin(), values.end(), [](int v) {
     REQUIRE(v == 5);
