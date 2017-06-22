@@ -22,53 +22,25 @@
 ## DEALINGS IN THE SOFTWARE.                                                  ##
 ## ========================================================================== ##
 
-## CMAKE_BUILD_TYPE setup macro ##
+add_executable(test_pack
+  doctest.h
+  test_pack.cpp
+  ${PSIMD_SOURCES}
+)
 
-macro(psimd_setup_build_type)
-  # force 'Release' build type on initial configuration (otherwise is empty)
-  set(CONFIGURATION_TYPES "Debug" "Release" "RelWithDebInfo")
-  if (WIN32)
-    if (NOT DEFAULT_CMAKE_CONFIGURATION_TYPES_SET)
-      set(CMAKE_CONFIGURATION_TYPES "${CONFIGURATION_TYPES}"
-          CACHE STRING "List of generated configurations." FORCE)
-      set(DEFAULT_CMAKE_CONFIGURATION_TYPES_SET ON CACHE INTERNAL
-          "Default CMake configuration types set.")
-    endif()
-  else()
-    if(NOT CMAKE_BUILD_TYPE)
-      set(CMAKE_BUILD_TYPE "Release" CACHE STRING
-          "Choose the type of build." FORCE)
-      set_property(CACHE CMAKE_BUILD_TYPE PROPERTY
-                   STRINGS ${CONFIGURATION_TYPES})
-    endif()
-  endif()
+set(TEST_EXE ${EXECUTABLE_OUTPUT_PATH}/test_pack)
 
-  # we are only building tests, should probably stick with 'Release'
-  mark_as_advanced(CMAKE_BUILD_TYPE)
-endmacro()
+add_test(arithmetic_operators
+         ${TEST_EXE} "--test-suite=\"arithmetic operators\"")
 
-## Compiler configuration macro ##
+add_test(bitwise_operators
+         ${TEST_EXE} "--test-suite=\"bitwise operators\"")
 
-macro(psimd_configure_compiler)
-  if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Intel")
-    include(cmake/icc.cmake)
-  elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
-    include(cmake/gcc.cmake)
-  elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    include(cmake/clang.cmake)
-  elseif(${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
-    include(cmake/msvc.cmake)
-  else()
-    message(FATAL_ERROR "Unsupported compiler: '${CMAKE_CXX_COMPILER_ID}'")
-  endif()
+add_test(logic_operators
+         ${TEST_EXE} "--test-suite=\"logic operators\"")
 
-  mark_as_advanced(CLEAR CMAKE_CXX_COMPILER)
+add_test(math_functions
+         ${TEST_EXE} "--test-suite=\"math functions\"")
 
-  find_package(OpenMP)
-  if(OPENMP_FOUND)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    set(CMAKE_EXE_LINKER_FLAGS
-        "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-  endif()
-endmacro()
+add_test(algorithms
+         ${TEST_EXE} "--test-suite=\"algorithms\"")

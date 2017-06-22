@@ -33,54 +33,23 @@ project(psimd)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 include(psimd)
 
-psimd_setup_build_type()
-
-# we are only building tests, should probably stick with 'Release'
-mark_as_advanced(CMAKE_BUILD_TYPE)
-
 install(DIRECTORY psimd DESTINATION include)
 
 ##############################################################
-# Build tests
+# Build tests and examples
 ##############################################################
 
+psimd_setup_build_type()
 psimd_configure_compiler()
 
-find_package(OpenMP)
-if(OPENMP_FOUND)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  set(CMAKE_EXE_LINKER_FLAGS
-      "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-endif()
-
 set(PSIMD_SOURCES
-  psimd/psimd.h
+  ${CMAKE_SOURCE_DIR}/psimd/psimd.h
 )
 
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/tests)
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
 include_directories(${CMAKE_SOURCE_DIR})
 
 enable_testing()
 
-add_executable(test_pack
-  tests/doctest.h
-  tests/test_pack.cpp
-  ${PSIMD_SOURCES}
-)
-
-add_test(arithmetic_operators
-         tests/test_pack "--test-suite=\"arithmetic operators\"")
-
-add_test(bitwise_operators
-         tests/test_pack "--test-suite=\"bitwise operators\"")
-
-add_test(logic_operators
-         tests/test_pack "--test-suite=\"logic operators\"")
-
-add_test(math_functions
-         tests/test_pack "--test-suite=\"math functions\"")
-
-add_test(algorithms
-         tests/test_pack "--test-suite=\"algorithms\"")
+subdirs(examples tests)
