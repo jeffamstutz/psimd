@@ -22,7 +22,7 @@
 ## DEALINGS IN THE SOFTWARE.                                                  ##
 ## ========================================================================== ##
 
-add_executable(example_mandelbrot
+add_executable(mandelbrot
   mandelbrot.cpp
   ${PSIMD_SOURCES}
 )

@@ -143,7 +143,8 @@ void mandelbrot_scalar(float x0, float y0, float x1, float y1,
 
 int main()
 {
-  const int numTestRuns = 5;
+  using namespace std::chrono;
+
   const unsigned int width  = 1200;
   const unsigned int height = 800;
   const float x0 = -2;
@@ -151,27 +152,37 @@ int main()
   const float y0 = -1;
   const float y1 = 1;
 
-  int maxIters = 256;
+  const int maxIters = 256;
   std::vector<int> buf(width*height);
 
   psimd::foreach(programIndex, [](int &v, int i) { v = i; });
 
-  using namespace std::chrono;
+	std::cout << "starting benchmarks (results in 'ms')... " << '\n';
+
 	auto bencher = pico_bench::Benchmarker<milliseconds>{16, seconds{4}};
 
 	auto stats = bencher([&](){
     mandelbrot_scalar(x0, y0, x1, y1, width, height, maxIters, buf.data());
   });
 
-	std::cout << "scalar " << stats << "\n";
+  const float scalar_min = stats.min().count();
+
+	std::cout << '\n' << "scalar " << stats << '\n';
 
 	stats = bencher([&](){
     mandelbrot_psimd(x0, y0, x1, y1, width, height, maxIters, buf.data());
   });
 
-	std::cout << "psimd " << stats << "\n";
+  const float psimd_min = stats.min().count();
+
+	std::cout << '\n' << "psimd " << stats << '\n';
+
+	std::cout << '\n' << "psimd provided a " << scalar_min / psimd_min
+            << "x improvement" << '\n';
 
   writePPM("mandelbrot.ppm", width, height, buf.data());
+
+  std::cout << "wrote output image to 'mandelbrot.ppm'" << '\n';
 
   return 0;
 }
