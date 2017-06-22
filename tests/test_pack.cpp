@@ -452,16 +452,43 @@ TEST_SUITE_END();
 
 TEST_SUITE_BEGIN("memory operations");
 
-TEST_CASE("load()")
+TEST_CASE("coherent load()")
 {
-  std::vector<float> values(DEFAULT_WIDTH);
-  std::fill(values.begin(), values.end(), 5.f);
+  std::vector<int> values(DEFAULT_WIDTH);
+  std::fill(values.begin(), values.end(), 5);
 
-  vfloat v1 = psimd::load<vfloat>(values.data());
-  REQUIRE(psimd::all(v1 == 5.f));
+  auto v1 = psimd::load<vint>(values.data());
+  REQUIRE(psimd::all(v1 == 5));
 }
 
-TEST_CASE("store()")
+TEST_CASE("incoherent load()")
+{
+  std::vector<int> values(DEFAULT_WIDTH);
+  std::fill(values.begin(), values.end(), 4);
+
+  vint offset;
+  for (int i = 0; i < DEFAULT_WIDTH; ++i)
+    offset[i] = i;
+
+  auto result = psimd::load<vint>(values.data(), offset);
+
+  REQUIRE(psimd::all(result == 4));
+}
+
+TEST_CASE("coherent store()")
+{
+  std::vector<int> values(DEFAULT_WIDTH);
+
+  vint v1(7);
+
+  psimd::store(v1, values.data());
+
+  std::for_each(values.begin(), values.end(), [](int v) {
+    REQUIRE(v == 7);
+  });
+}
+
+TEST_CASE("incoherent store()")
 {
   std::vector<int> values(DEFAULT_WIDTH);
 
@@ -472,6 +499,7 @@ TEST_CASE("store()")
     offset[i] = i;
 
   psimd::store(v1, values.data(), offset);
+
   std::for_each(values.begin(), values.end(), [](int v) {
     REQUIRE(v == 5);
   });
