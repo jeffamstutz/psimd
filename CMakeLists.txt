@@ -31,7 +31,7 @@ cmake_minimum_required(VERSION 2.8)
 project(psimd)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
-include(cmake/psimd.cmake)
+include(psimd)
 
 psimd_setup_build_type()
 

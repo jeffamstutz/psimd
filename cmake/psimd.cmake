@@ -58,4 +58,6 @@ macro(psimd_configure_compiler)
   else()
     message(FATAL_ERROR "Unsupported compiler: '${CMAKE_CXX_COMPILER_ID}'")
   endif()
+
+  mark_as_advanced(CLEAR CMAKE_CXX_COMPILER)
 endmacro()
