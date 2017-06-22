@@ -808,6 +808,42 @@ namespace psimd {
     return result;
   }
 
+  template <typename T, int W>
+  inline pack<T, W> pow(const pack<T, W> &v, const float b)
+  {
+    pack<T, W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = std::pow(v[i], b);
+
+    return result;
+  }
+
+  template <typename T, int W>
+  inline pack<T, W> max(const pack<T, W> &a, const pack<T, W> &b)
+  {
+    pack<T, W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = std::max(a[i], b[i]);
+
+    return result;
+  }
+
+  template <typename T, int W>
+  inline pack<T, W> min(const pack<T, W> &a, const pack<T, W> &b)
+  {
+    pack<T, W> result;
+
+    #pragma omp simd
+    for (int i = 0; i < W; ++i)
+      result[i] = std::min(a[i], b[i]);
+
+    return result;
+  }
+
   // pack<> algorithms ////////////////////////////////////////////////////////
 
   template <typename T, int W, typename FCN_T>
