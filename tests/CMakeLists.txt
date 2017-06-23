@@ -25,7 +25,6 @@
 add_executable(test_pack
   doctest.h
   test_pack.cpp
-  ${PSIMD_SOURCES}
 )
 
 set(TEST_EXE ${EXECUTABLE_OUTPUT_PATH}/test_pack)

@@ -42,10 +42,6 @@ install(DIRECTORY psimd DESTINATION include)
 psimd_setup_build_type()
 psimd_configure_compiler()
 
-set(PSIMD_SOURCES
-  ${CMAKE_SOURCE_DIR}/psimd/psimd.h
-)
-
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
 include_directories(${CMAKE_SOURCE_DIR})
