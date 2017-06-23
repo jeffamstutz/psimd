@@ -31,7 +31,7 @@
    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-static inline int mandel(const float c_re, const float c_im, const int count)
+static inline int mandel(float c_re, float c_im, int count)
 {
   float z_re = c_re, z_im = c_im;
   int i;
@@ -39,8 +39,8 @@ static inline int mandel(const float c_re, const float c_im, const int count)
     if (z_re * z_re + z_im * z_im > 4.)
       break;
 
-    const float new_re = z_re*z_re - z_im*z_im;
-    const float new_im = 2.f * z_re * z_im;
+    float new_re = z_re*z_re - z_im*z_im;
+    float new_im = 2.f * z_re * z_im;
     unmasked {
       z_re = c_re + new_re;
       z_im = c_im + new_im;
@@ -50,19 +50,19 @@ static inline int mandel(const float c_re, const float c_im, const int count)
   return i;
 }
 
-export void mandelbrot(uniform const float x0, uniform const float y0,
-                       uniform const float x1, uniform const float y1,
-                       uniform const int width, uniform const int height,
-                       uniform const int maxIterations,
+export void mandelbrot(uniform float x0, uniform float y0,
+                       uniform float x1, uniform float y1,
+                       uniform int width, uniform int height,
+                       uniform int maxIterations,
                        uniform int output[])
 {
-  const float dx = (x1 - x0) / width;
-  const float dy = (y1 - y0) / height;
+  float dx = (x1 - x0) / width;
+  float dy = (y1 - y0) / height;
 
   for (uniform int j = 0; j < height; j++) {
     foreach (i = 0 ... width) {
-      const float x = x0 + i * dx;
-      const float y = y0 + j * dy;
+      float x = x0 + i * dx;
+      float y = y0 + j * dy;
 
       int index = j * width + i;
       output[index] = mandel(x, y, maxIterations);
