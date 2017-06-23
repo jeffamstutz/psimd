@@ -24,14 +24,12 @@
 
 #pragma once
 
-#include <type_traits>
+#ifndef DEFAULT_WIDTH
+#  define DEFAULT_WIDTH 8
+#endif
 
-#include "detail/pack.h"
-
-#include "detail/functions/algorithm.h"
-#include "detail/functions/math.h"
-#include "detail/functions/memory.h"
-
-#include "detail/operators/arithmetic.h"
-#include "detail/operators/bitwise.h"
-#include "detail/operators/logic.h"
+#ifdef _WIN32
+#  define PSIMD_ALIGN(...) __declspec(align(__VA_ARGS__))
+#else
+#  define PSIMD_ALIGN(...) __attribute__((aligned(__VA_ARGS__)))
+#endif
