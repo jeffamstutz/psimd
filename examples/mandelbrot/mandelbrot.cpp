@@ -68,19 +68,19 @@ inline void writePPM(const std::string &fileName,
 inline vint mandel_psimd(const vmask &_active,
                          const vfloat &c_re,
                          const vfloat &c_im,
-                         int maxIters)
+                         const int maxIters)
 {
   vfloat z_re = c_re;
   vfloat z_im = c_im;
   vint vi(0);
 
   for (int i = 0; i < maxIters; ++i) {
-    auto active = _active && ((z_re * z_re + z_im * z_im) <= 4.f);
+    const auto active = _active && ((z_re * z_re + z_im * z_im) <= 4.f);
     if (psimd::none(active))
       break;
 
-    vfloat new_re = z_re * z_re - z_im * z_im;
-    vfloat new_im = 2.f * z_re * z_im;
+    const vfloat new_re = z_re * z_re - z_im * z_im;
+    const vfloat new_im = 2.f * z_re * z_im;
     z_re = c_re + new_re;
     z_im = c_im + new_im;
 
@@ -90,23 +90,23 @@ inline vint mandel_psimd(const vmask &_active,
   return vi;
 }
 
-void mandelbrot_psimd(float x0, float y0,
-                      float x1, float y1,
-                      int width, int height, int maxIters,
+void mandelbrot_psimd(const float x0, const float y0,
+                      const float x1, const float y1,
+                      const int width, const int height, const int maxIters,
                       int output[])
 {
-  float dx = (x1 - x0) / width;
-  float dy = (y1 - y0) / height;
+  const float dx = (x1 - x0) / width;
+  const float dy = (y1 - y0) / height;
 
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; i += DEFAULT_WIDTH) {
-      vfloat x = x0 + (i + programIndex.as<float>()) * dx;
-      vfloat y = y0 + j * dy;
+      const vfloat x = x0 + (i + programIndex.as<float>()) * dx;
+      const vfloat y = y0 + j * dy;
 
-      auto active = x < width;
+      const auto active = x < width;
 
-      int base_index = (j * width + i);
-      auto result = mandel_psimd(active, x, y, maxIters);
+      const int base_index = (j * width + i);
+      const auto result = mandel_psimd(active, x, y, maxIters);
 
       psimd::store(result, output + base_index, active);
     }
@@ -115,8 +115,8 @@ void mandelbrot_psimd(float x0, float y0,
 
 // omp version ////////////////////////////////////////////////////////////////
 
-#pragma omp declare simd
-inline int mandel_omp(float c_re, float c_im, int count)
+#pragma omp declare simd uniform(count)
+inline int mandel_omp(const float c_re, const float c_im, const int count)
 {
   float z_re = c_re, z_im = c_im;
   int i;
@@ -124,8 +124,8 @@ inline int mandel_omp(float c_re, float c_im, int count)
     if (z_re * z_re + z_im * z_im > 4.f)
       break;
 
-    float new_re = z_re*z_re - z_im*z_im;
-    float new_im = 2.f * z_re * z_im;
+    const float new_re = z_re*z_re - z_im*z_im;
+    const float new_im = 2.f * z_re * z_im;
     z_re = c_re + new_re;
     z_im = c_im + new_im;
   }
@@ -133,20 +133,22 @@ inline int mandel_omp(float c_re, float c_im, int count)
   return i;
 }
 
-void mandelbrot_omp(float x0, float y0, float x1, float y1,
-                    int width, int height, int maxIterations,
+void mandelbrot_omp(const float x0, const float y0,
+                    const float x1, const float y1,
+                    const int width, const int height,
+                    const int maxIterations,
                     int output[])
 {
-  float dx = (x1 - x0) / width;
-  float dy = (y1 - y0) / height;
+  const float dx = (x1 - x0) / width;
+  const float dy = (y1 - y0) / height;
 
   for (int j = 0; j < height; j++) {
 #   pragma omp simd
     for (int i = 0; i < width; ++i) {
-      float x = x0 + i * dx;
-      float y = y0 + j * dy;
+      const float x = x0 + i * dx;
+      const float y = y0 + j * dy;
 
-      int index = (j * width + i);
+      const int index = (j * width + i);
       output[index] = mandel_omp(x, y, maxIterations);
     }
   }
@@ -154,7 +156,7 @@ void mandelbrot_omp(float x0, float y0, float x1, float y1,
 
 // scalar version /////////////////////////////////////////////////////////////
 
-inline int mandel_scalar(float c_re, float c_im, int count)
+inline int mandel_scalar(const float c_re, const float c_im, const int count)
 {
   float z_re = c_re, z_im = c_im;
   int i;
@@ -162,8 +164,8 @@ inline int mandel_scalar(float c_re, float c_im, int count)
     if (z_re * z_re + z_im * z_im > 4.f)
       break;
 
-    float new_re = z_re*z_re - z_im*z_im;
-    float new_im = 2.f * z_re * z_im;
+    const float new_re = z_re*z_re - z_im*z_im;
+    const float new_im = 2.f * z_re * z_im;
     z_re = c_re + new_re;
     z_im = c_im + new_im;
   }
@@ -171,19 +173,21 @@ inline int mandel_scalar(float c_re, float c_im, int count)
   return i;
 }
 
-void mandelbrot_scalar(float x0, float y0, float x1, float y1,
-                       int width, int height, int maxIterations,
+void mandelbrot_scalar(const float x0, const float y0,
+                       const float x1, const float y1,
+                       const int width, const int height,
+                       const int maxIterations,
                        int output[])
 {
-  float dx = (x1 - x0) / width;
-  float dy = (y1 - y0) / height;
+  const float dx = (x1 - x0) / width;
+  const float dy = (y1 - y0) / height;
 
   for (int j = 0; j < height; j++) {
     for (int i = 0; i < width; ++i) {
-      float x = x0 + i * dx;
-      float y = y0 + j * dy;
+      const float x = x0 + i * dx;
+      const float y = y0 + j * dy;
 
-      int index = (j * width + i);
+      const int index = (j * width + i);
       output[index] = mandel_scalar(x, y, maxIterations);
     }
   }
