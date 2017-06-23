@@ -206,6 +206,8 @@ int main()
 
   // scalar run ///////////////////////////////////////////////////////////////
 
+  std::fill(buf.begin(), buf.end(), 0);
+
 	auto stats = bencher([&](){
     mandelbrot_scalar(x0, y0, x1, y1, width, height, maxIters, buf.data());
   });
@@ -216,6 +218,8 @@ int main()
 
   // omp run //////////////////////////////////////////////////////////////////
 
+  std::fill(buf.begin(), buf.end(), 0);
+
 	stats = bencher([&](){
     mandelbrot_omp(x0, y0, x1, y1, width, height, maxIters, buf.data());
   });
@@ -225,6 +229,8 @@ int main()
 	std::cout << '\n' << "omp " << stats << '\n';
 
   // psimd run ////////////////////////////////////////////////////////////////
+
+  std::fill(buf.begin(), buf.end(), 0);
 
 	stats = bencher([&](){
     mandelbrot_psimd(x0, y0, x1, y1, width, height, maxIters, buf.data());
