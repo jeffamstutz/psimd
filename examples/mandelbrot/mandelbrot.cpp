@@ -205,80 +205,80 @@ int main()
 
   psimd::foreach(programIndex, [](int &v, int i) { v = i; });
 
-	auto bencher = pico_bench::Benchmarker<milliseconds>{16, seconds{4}};
+  auto bencher = pico_bench::Benchmarker<milliseconds>{16, seconds{4}};
 
-	std::cout << "starting benchmarks (results in 'ms')... " << '\n';
+  std::cout << "starting benchmarks (results in 'ms')... " << '\n';
 
   // scalar run ///////////////////////////////////////////////////////////////
 
   std::fill(buf.begin(), buf.end(), 0);
 
-	auto stats = bencher([&](){
+  auto stats = bencher([&](){
     mandelbrot_scalar(x0, y0, x1, y1, width, height, maxIters, buf.data());
   });
 
   const float scalar_min = stats.min().count();
 
-	std::cout << '\n' << "scalar " << stats << '\n';
+  std::cout << '\n' << "scalar " << stats << '\n';
 
   // omp run //////////////////////////////////////////////////////////////////
 
   std::fill(buf.begin(), buf.end(), 0);
 
-	stats = bencher([&](){
+  stats = bencher([&](){
     mandelbrot_omp(x0, y0, x1, y1, width, height, maxIters, buf.data());
   });
 
   const float omp_min = stats.min().count();
 
-	std::cout << '\n' << "omp " << stats << '\n';
+  std::cout << '\n' << "omp " << stats << '\n';
 
   // ispc run /////////////////////////////////////////////////////////////////
 
 #ifdef PSIMD_ENABLE_ISPC
   std::fill(buf.begin(), buf.end(), 0);
 
-	stats = bencher([&](){
+  stats = bencher([&](){
     ispc::mandelbrot(x0, y0, x1, y1, width, height, maxIters, buf.data());
   });
 
   const float ispc_min = stats.min().count();
 
-	std::cout << '\n' << "ispc " << stats << '\n';
+  std::cout << '\n' << "ispc " << stats << '\n';
 #endif
 
   // psimd run ////////////////////////////////////////////////////////////////
 
   std::fill(buf.begin(), buf.end(), 0);
 
-	stats = bencher([&](){
+  stats = bencher([&](){
     mandelbrot_psimd(x0, y0, x1, y1, width, height, maxIters, buf.data());
   });
 
   const float psimd_min = stats.min().count();
 
-	std::cout << '\n' << "psimd " << stats << '\n';
+  std::cout << '\n' << "psimd " << stats << '\n';
 
   // conclusions //////////////////////////////////////////////////////////////
 
-	std::cout << '\n' << "Conclusions: " << '\n';
+  std::cout << '\n' << "Conclusions: " << '\n';
 
-	std::cout << '\n' << "--> omp was " << scalar_min / omp_min
+  std::cout << '\n' << "--> omp was " << scalar_min / omp_min
             << "x the speed of the scalar version" << '\n';
 
 #ifdef PSIMD_ENABLE_ISPC
-	std::cout << '\n' << "--> ispc was " << scalar_min / ispc_min
+  std::cout << '\n' << "--> ispc was " << scalar_min / ispc_min
             << "x the speed of the scalar version" << '\n';
 #endif
 
-	std::cout << '\n' << "--> psimd was " << scalar_min / psimd_min
+  std::cout << '\n' << "--> psimd was " << scalar_min / psimd_min
             << "x the speed of the scalar version" << '\n';
 
-	std::cout << '\n' << "--> psimd was " << omp_min / psimd_min
+  std::cout << '\n' << "--> psimd was " << omp_min / psimd_min
             << "x the speed of omp" << '\n';
 
 #ifdef PSIMD_ENABLE_ISPC
-	std::cout << '\n' << "--> psimd was " << ispc_min / psimd_min
+  std::cout << '\n' << "--> psimd was " << ispc_min / psimd_min
             << "x the speed of ispc" << '\n';
 #endif
 
