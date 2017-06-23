@@ -24,8 +24,6 @@
 
 #pragma once
 
-#include <type_traits>
-
 #include "detail/pack.h"
 
 #include "detail/functions/algorithm.h"
