@@ -22,7 +22,7 @@
 ## DEALINGS IN THE SOFTWARE.                                                  ##
 ## ========================================================================== ##
 
-option(PSIMD_ENABLE_ISPC "Enable ISPC examples" ON)
+option(PSIMD_ENABLE_ISPC "Enable ISPC examples" OFF)
 
 if(PSIMD_ENABLE_ISPC)
   add_definitions(-DPSIMD_ENABLE_ISPC)
