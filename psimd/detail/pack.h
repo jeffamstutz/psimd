@@ -34,7 +34,9 @@ namespace psimd {
     pack() = default;
     pack(T value);
 
+#pragma omp declare simd
     const T& operator[](int i) const;
+#pragma omp declare simd
           T& operator[](int i);
 
     template <typename OTHER_T>
