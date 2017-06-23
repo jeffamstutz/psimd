@@ -22,7 +22,12 @@
 ## DEALINGS IN THE SOFTWARE.                                                  ##
 ## ========================================================================== ##
 
-add_executable(mandelbrot
+include(ispc)
+
+psimd_configure_ispc_isa()
+
+ispc_add_executable(mandelbrot
   mandelbrot.cpp
+  mandelbrot.ispc
   ${PSIMD_SOURCES}
 )
