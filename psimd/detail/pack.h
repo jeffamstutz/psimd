@@ -29,7 +29,7 @@
 namespace psimd {
 
   template <typename T, int W = DEFAULT_WIDTH>
-  struct PSIMD_ALIGN(16) pack
+  struct pack
   {
     pack() = default;
     pack(T value);
@@ -42,11 +42,14 @@ namespace psimd {
     template <typename OTHER_T>
     pack<OTHER_T, W> as();
 
-    // Data //
+    // Compile-time info //
 
-    T data[W];
     enum {static_size = W};
     using type = T;
+
+    // Data //
+
+    PSIMD_ALIGN(16) T data[W];
   };
 
   template <int W = DEFAULT_WIDTH>
