@@ -32,7 +32,9 @@
 #include "psimd/psimd.h"
 
 //ispc
-#include "mandelbrot_ispc.h"
+#ifdef PSIMD_ENABLE_ISPC
+#  include "mandelbrot_ispc.h"
+#endif
 
 using vfloat = psimd::pack<float>;
 using vint   = psimd::pack<int>;
@@ -233,6 +235,7 @@ int main()
 
   // ispc run /////////////////////////////////////////////////////////////////
 
+#ifdef PSIMD_ENABLE_ISPC
   std::fill(buf.begin(), buf.end(), 0);
 
 	stats = bencher([&](){
@@ -242,6 +245,7 @@ int main()
   const float ispc_min = stats.min().count();
 
 	std::cout << '\n' << "ispc " << stats << '\n';
+#endif
 
   // psimd run ////////////////////////////////////////////////////////////////
 
@@ -262,8 +266,10 @@ int main()
 	std::cout << '\n' << "--> omp was " << scalar_min / omp_min
             << "x the speed of the scalar version" << '\n';
 
+#ifdef PSIMD_ENABLE_ISPC
 	std::cout << '\n' << "--> ispc was " << scalar_min / ispc_min
             << "x the speed of the scalar version" << '\n';
+#endif
 
 	std::cout << '\n' << "--> psimd was " << scalar_min / psimd_min
             << "x the speed of the scalar version" << '\n';
@@ -271,8 +277,10 @@ int main()
 	std::cout << '\n' << "--> psimd was " << omp_min / psimd_min
             << "x the speed of omp" << '\n';
 
+#ifdef PSIMD_ENABLE_ISPC
 	std::cout << '\n' << "--> psimd was " << ispc_min / psimd_min
             << "x the speed of ispc" << '\n';
+#endif
 
   writePPM("mandelbrot.ppm", width, height, buf.data());
 
