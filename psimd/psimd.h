@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cmath>
 #include <type_traits>
 
