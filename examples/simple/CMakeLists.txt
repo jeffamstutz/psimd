@@ -22,6 +22,9 @@
 ## DEALINGS IN THE SOFTWARE.                                                  ##
 ## ========================================================================== ##
 
+find_package(Boost REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+
 add_executable(simple
   simple.cpp
 )
