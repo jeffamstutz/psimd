@@ -22,88 +22,22 @@
 // DEALINGS IN THE SOFTWARE.                                                  //
 // ========================================================================== //
 
-#pragma once
-
 #include <iostream>
 
-#include "config.h"
+#include "psimd/psimd.h"
 
-namespace psimd {
+using vfloat = psimd::pack<float>;
+using vint   = psimd::pack<int>;
+using vmask  = psimd::mask<>;
 
-  static int numConstructed = 0;
+int main()
+{
+  vfloat a(4.0f);
+  vfloat b(5.6f);
 
-  template <typename T, int W = DEFAULT_WIDTH>
-  struct pack
-  {
-    #if 0
-    pack() = default;
-    #else
-    pack();
-    #endif
-    pack(T value);
+  vfloat c = a * b + a * b - a * b / a * b;
 
-#pragma omp declare simd
-    const T& operator[](int i) const;
-#pragma omp declare simd
-          T& operator[](int i);
+  std::cout << "c[0] == " << c[0] << std::endl;
 
-    template <typename OTHER_T>
-    pack<OTHER_T, W> as();
-
-    // Compile-time info //
-
-    enum {static_size = W};
-    using type = T;
-
-    // Data //
-
-    PSIMD_ALIGN(16) T data[W];
-  };
-
-  template <int W = DEFAULT_WIDTH>
-  using mask = pack<int, W>;
-
-  // pack<> inlined members ///////////////////////////////////////////////////
-
-  template <typename T, int W>
-  inline pack<T, W>::pack()
-  {
-    std::cout << "numConstructed == " << numConstructed++ << std::endl;
-  }
-
-  template <typename T, int W>
-  inline pack<T, W>::pack(T value)
-  {
-    #pragma omp simd
-    for(int i = 0; i < W; ++i)
-      data[i] = value;
-
-    std::cout << "numConstructed == " << numConstructed++ << std::endl;
-  }
-
-  template <typename T, int W>
-  inline const T& pack<T, W>::operator[](int i) const
-  {
-    return data[i];
-  }
-
-  template <typename T, int W>
-  inline T& pack<T, W>::operator[](int i)
-  {
-    return data[i];
-  }
-
-  template <typename T, int W>
-  template <typename OTHER_T>
-  inline pack<OTHER_T, W> pack<T, W>::as()
-  {
-    pack<OTHER_T, W> result;
-
-    #pragma omp simd
-    for (int i = 0; i < W; ++i)
-      result[i] = data[i];
-
-    return result;
-  }
-
-} // ::psimd
+  return 0;
+}

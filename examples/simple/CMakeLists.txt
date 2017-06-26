@@ -22,14 +22,6 @@
 ## DEALINGS IN THE SOFTWARE.                                                  ##
 ## ========================================================================== ##
 
-option(PSIMD_ENABLE_ISPC "Enable ISPC examples" OFF)
-
-if(PSIMD_ENABLE_ISPC)
-  add_definitions(-DPSIMD_ENABLE_ISPC)
-endif()
-
-include(ispc)
-
-psimd_configure_ispc_isa()
-
-subdirs(mandelbrot simple)
+add_executable(simple
+  simple.cpp
+)
