@@ -31,16 +31,12 @@
 
 #include "psimd/psimd.h"
 
+#include "../embc/simd/simd.h"
+
 //ispc
 #ifdef PSIMD_ENABLE_ISPC
 #  include "mandelbrot_ispc.h"
 #endif
-
-using vfloat = psimd::pack<float>;
-using vint   = psimd::pack<int>;
-using vmask  = psimd::mask<>;
-
-vint programIndex(0);
 
 // helper function to write the rendered image as PPM file
 inline void writePPM(const std::string &fileName,
@@ -65,10 +61,18 @@ inline void writePPM(const std::string &fileName,
 
 // psimd version //////////////////////////////////////////////////////////////
 
-inline vint mandel_psimd(const vmask &_active,
-                         const vfloat &c_re,
-                         const vfloat &c_im,
-                         int maxIters)
+namespace psimd {
+
+using vfloat = psimd::pack<float>;
+using vint   = psimd::pack<int>;
+using vmask  = psimd::mask<>;
+
+static vint programIndex(0);
+
+inline vint mandel(const vmask &_active,
+                   const vfloat &c_re,
+                   const vfloat &c_im,
+                   int maxIters)
 {
   vfloat z_re = c_re;
   vfloat z_im = c_im;
@@ -90,10 +94,10 @@ inline vint mandel_psimd(const vmask &_active,
   return vi;
 }
 
-void mandelbrot_psimd(float x0, float y0,
-                      float x1, float y1,
-                      int width, int height, int maxIters,
-                      int output[])
+void mandelbrot(float x0, float y0,
+                float x1, float y1,
+                int width, int height, int maxIters,
+                int output[])
 {
   float dx = (x1 - x0) / width;
   float dy = (y1 - y0) / height;
@@ -106,17 +110,92 @@ void mandelbrot_psimd(float x0, float y0,
       auto active = x < width;
 
       int base_index = (j * width + i);
-      auto result = mandel_psimd(active, x, y, maxIters);
+      auto result = mandel(active, x, y, maxIters);
 
       psimd::store(result, output + base_index, active);
     }
   }
 }
 
+} // ::psimd
+
+// embree version /////////////////////////////////////////////////////////////
+
+namespace embc {
+
+// foreach //
+
+template <typename SIMD_T, typename FCN_T>
+inline void foreach_v(SIMD_T &v, FCN_T &&fcn)
+{
+  // NOTE(jda) - need to static_assert() FCN_T's signature
+
+  for (int i = 0; i < SIMD_T::size; ++i)
+    fcn(v[i], i);
+}
+
+using vfloat = embree::vfloatx;
+using vint   = embree::vintx;
+using vmask  = embree::vboolx;
+
+static vint programIndex(0);
+
+inline vint mandel(const vmask &_active,
+                   const vfloat &c_re,
+                   const vfloat &c_im,
+                   int maxIters)
+{
+  vfloat z_re = c_re;
+  vfloat z_im = c_im;
+  vint vi(0);
+
+  for (int i = 0; i < maxIters; ++i) {
+    auto active = _active & ((z_re * z_re + z_im * z_im) <= 4.f);
+    if (embree::none(active))
+      break;
+
+    vfloat new_re = z_re * z_re - z_im * z_im;
+    vfloat new_im = 2.f * z_re * z_im;
+    z_re = c_re + new_re;
+    z_im = c_im + new_im;
+
+    vi = embree::select(active, vi + 1, vi);
+  }
+
+  return vi;
+}
+
+void mandelbrot(float x0, float y0,
+                float x1, float y1,
+                int width, int height, int maxIters,
+                int output[])
+{
+  float dx = (x1 - x0) / width;
+  float dy = (y1 - y0) / height;
+
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i += DEFAULT_WIDTH) {
+      vfloat x = x0 + (i + vfloat(programIndex)) * dx;
+      vfloat y = y0 + j * dy;
+
+      auto active = x < width;
+
+      int base_index = (j * width + i);
+      auto result = mandel(active, x, y, maxIters);
+
+      vint::store(active, output + base_index, result);
+    }
+  }
+}
+
+} // ::embc
+
 // omp version ////////////////////////////////////////////////////////////////
 
+namespace omp {
+
 #pragma omp declare simd
-inline int mandel_omp(float c_re, float c_im, int count)
+inline int mandel(float c_re, float c_im, int count)
 {
   float z_re = c_re, z_im = c_im;
   int i;
@@ -133,9 +212,9 @@ inline int mandel_omp(float c_re, float c_im, int count)
   return i;
 }
 
-void mandelbrot_omp(float x0, float y0, float x1, float y1,
-                    int width, int height, int maxIterations,
-                    int output[])
+void mandelbrot(float x0, float y0, float x1, float y1,
+                int width, int height, int maxIterations,
+                int output[])
 {
   float dx = (x1 - x0) / width;
   float dy = (y1 - y0) / height;
@@ -147,14 +226,18 @@ void mandelbrot_omp(float x0, float y0, float x1, float y1,
       float y = y0 + j * dy;
 
       int index = (j * width + i);
-      output[index] = mandel_omp(x, y, maxIterations);
+      output[index] = mandel(x, y, maxIterations);
     }
   }
 }
 
+} // ::omp
+
 // scalar version /////////////////////////////////////////////////////////////
 
-inline int mandel_scalar(float c_re, float c_im, int count)
+namespace scalar {
+
+inline int mandel(float c_re, float c_im, int count)
 {
   float z_re = c_re, z_im = c_im;
   int i;
@@ -171,9 +254,9 @@ inline int mandel_scalar(float c_re, float c_im, int count)
   return i;
 }
 
-void mandelbrot_scalar(float x0, float y0, float x1, float y1,
-                       int width, int height, int maxIterations,
-                       int output[])
+void mandelbrot(float x0, float y0, float x1, float y1,
+                int width, int height, int maxIterations,
+                int output[])
 {
   float dx = (x1 - x0) / width;
   float dy = (y1 - y0) / height;
@@ -184,10 +267,12 @@ void mandelbrot_scalar(float x0, float y0, float x1, float y1,
       float y = y0 + j * dy;
 
       int index = (j * width + i);
-      output[index] = mandel_scalar(x, y, maxIterations);
+      output[index] = mandel(x, y, maxIterations);
     }
   }
 }
+
+} // ::scalar
 
 int main()
 {
@@ -203,7 +288,8 @@ int main()
   const int maxIters = 256;
   std::vector<int> buf(width*height);
 
-  psimd::foreach(programIndex, [](int &v, int i) { v = i; });
+  psimd::foreach(psimd::programIndex, [](int &v, int i) { v = i; });
+  embc::foreach_v(embc::programIndex, [](int &v, int i) { v = i; });
 
   auto bencher = pico_bench::Benchmarker<milliseconds>{16, seconds{4}};
 
@@ -214,7 +300,7 @@ int main()
   std::fill(buf.begin(), buf.end(), 0);
 
   auto stats = bencher([&](){
-    mandelbrot_scalar(x0, y0, x1, y1, width, height, maxIters, buf.data());
+    scalar::mandelbrot(x0, y0, x1, y1, width, height, maxIters, buf.data());
   });
 
   const float scalar_min = stats.min().count();
@@ -226,7 +312,7 @@ int main()
   std::fill(buf.begin(), buf.end(), 0);
 
   stats = bencher([&](){
-    mandelbrot_omp(x0, y0, x1, y1, width, height, maxIters, buf.data());
+    omp::mandelbrot(x0, y0, x1, y1, width, height, maxIters, buf.data());
   });
 
   const float omp_min = stats.min().count();
@@ -252,12 +338,24 @@ int main()
   std::fill(buf.begin(), buf.end(), 0);
 
   stats = bencher([&](){
-    mandelbrot_psimd(x0, y0, x1, y1, width, height, maxIters, buf.data());
+    psimd::mandelbrot(x0, y0, x1, y1, width, height, maxIters, buf.data());
   });
 
   const float psimd_min = stats.min().count();
 
   std::cout << '\n' << "psimd " << stats << '\n';
+
+  // embree run ///////////////////////////////////////////////////////////////
+
+  std::fill(buf.begin(), buf.end(), 0);
+
+  stats = bencher([&](){
+    embc::mandelbrot(x0, y0, x1, y1, width, height, maxIters, buf.data());
+  });
+
+  const float embree_min = stats.min().count();
+
+  std::cout << '\n' << "embree " << stats << '\n';
 
   // conclusions //////////////////////////////////////////////////////////////
 
@@ -277,8 +375,14 @@ int main()
   std::cout << '\n' << "--> psimd was " << omp_min / psimd_min
             << "x the speed of omp" << '\n';
 
+  std::cout << '\n' << "--> embc was " << psimd_min / embree_min
+            << "x the speed of psimd" << '\n';
+
 #ifdef PSIMD_ENABLE_ISPC
   std::cout << '\n' << "--> psimd was " << ispc_min / psimd_min
+            << "x the speed of ispc" << '\n';
+
+  std::cout << '\n' << "--> embc was " << ispc_min / embree_min
             << "x the speed of ispc" << '\n';
 #endif
 
