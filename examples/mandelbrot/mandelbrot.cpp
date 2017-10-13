@@ -362,18 +362,21 @@ int main()
   std::cout << '\n' << "Conclusions: " << '\n';
 
   std::cout << '\n' << "--> omp was " << scalar_min / omp_min
-            << "x the speed of the scalar version" << '\n';
+            << "x the speed of scalar" << '\n';
 
 #ifdef PSIMD_ENABLE_ISPC
   std::cout << '\n' << "--> ispc was " << scalar_min / ispc_min
-            << "x the speed of the scalar version" << '\n';
+            << "x the speed of scalar" << '\n';
 #endif
 
   std::cout << '\n' << "--> psimd was " << scalar_min / psimd_min
-            << "x the speed of the scalar version" << '\n';
+            << "x the speed of scalar" << '\n';
 
   std::cout << '\n' << "--> psimd was " << omp_min / psimd_min
             << "x the speed of omp" << '\n';
+
+  std::cout << '\n' << "--> embc was " << scalar_min / embree_min
+            << "x the speed of scalar" << '\n';
 
   std::cout << '\n' << "--> embc was " << psimd_min / embree_min
             << "x the speed of psimd" << '\n';
