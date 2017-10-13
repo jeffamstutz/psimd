@@ -361,19 +361,40 @@ int main()
 
   std::cout << '\n' << "Conclusions: " << '\n';
 
-  std::cout << '\n' << "--> omp was " << scalar_min / omp_min
-            << "x the speed of scalar" << '\n';
+  // scalar //
 
-#ifdef PSIMD_ENABLE_ISPC
-  std::cout << '\n' << "--> ispc was " << scalar_min / ispc_min
-            << "x the speed of scalar" << '\n';
-#endif
+  std::cout << '\n' << "--> scalar was " << psimd_min / scalar_min
+            << "x the speed of psimd" << '\n';
+
+  std::cout << '\n' << "--> scalar was " << omp_min / scalar_min
+            << "x the speed of omp" << '\n';
+
+  std::cout << '\n' << "--> scalar was " << embree_min / scalar_min
+            << "x the speed of embc" << '\n';
+
+  // psimd //
 
   std::cout << '\n' << "--> psimd was " << scalar_min / psimd_min
             << "x the speed of scalar" << '\n';
 
   std::cout << '\n' << "--> psimd was " << omp_min / psimd_min
             << "x the speed of omp" << '\n';
+
+  std::cout << '\n' << "--> psimd was " << embree_min / psimd_min
+            << "x the speed of embc" << '\n';
+
+  // omp //
+
+  std::cout << '\n' << "--> omp was " << scalar_min / omp_min
+            << "x the speed of scalar" << '\n';
+
+  std::cout << '\n' << "--> omp was " << psimd_min / omp_min
+            << "x the speed of psimd" << '\n';
+
+  std::cout << '\n' << "--> omp was " << embree_min / omp_min
+            << "x the speed of embc" << '\n';
+
+  // embree //
 
   std::cout << '\n' << "--> embc was " << scalar_min / embree_min
             << "x the speed of scalar" << '\n';
@@ -384,12 +405,20 @@ int main()
   std::cout << '\n' << "--> embc was " << omp_min / embree_min
             << "x the speed of omp" << '\n';
 
-#ifdef PSIMD_ENABLE_ISPC
-  std::cout << '\n' << "--> psimd was " << ispc_min / psimd_min
-            << "x the speed of ispc" << '\n';
+  // ispc //
 
-  std::cout << '\n' << "--> embc was " << ispc_min / embree_min
-            << "x the speed of ispc" << '\n';
+#ifdef PSIMD_ENABLE_ISPC
+  std::cout << '\n' << "--> ispc was " << scalar_min / ispc_min
+            << "x the speed of scalar" << '\n';
+
+  std::cout << '\n' << "--> ispc was " << psimd_min / ispc_min
+            << "x the speed of psimd" << '\n';
+
+  std::cout << '\n' << "--> ispc was " << omp_min / ispc_min
+            << "x the speed of omp" << '\n';
+
+  std::cout << '\n' << "--> ispc was " << embree_min / ispc_min
+            << "x the speed of embc" << '\n';
 #endif
 
   writePPM("mandelbrot.ppm", width, height, buf.data());
