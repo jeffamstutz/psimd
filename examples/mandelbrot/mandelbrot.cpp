@@ -381,6 +381,9 @@ int main()
   std::cout << '\n' << "--> embc was " << psimd_min / embree_min
             << "x the speed of psimd" << '\n';
 
+  std::cout << '\n' << "--> embc was " << omp_min / embree_min
+            << "x the speed of omp" << '\n';
+
 #ifdef PSIMD_ENABLE_ISPC
   std::cout << '\n' << "--> psimd was " << ispc_min / psimd_min
             << "x the speed of ispc" << '\n';
